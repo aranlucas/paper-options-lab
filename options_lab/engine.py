@@ -182,6 +182,9 @@ def compare(data, at, policy=Policy(), quantity=1, snapshot_id=None):
         raise InputError("quantity must be integer in [1, 100]")
     snapshot = next((snap for snap in data["snapshots"] if snap["id"] == snapshot_id), None) if snapshot_id else latest_snapshot(data, at)
     result = {"paper_only": True, "source": data["source"], "as_of": at.isoformat(), "policy": asdict(policy), "candidates": [], "snapshot_id": snapshot["id"] if snapshot else None}
+    if data["source"].get("observation_only") is True:
+        result["error"] = "OBSERVATION_ONLY_DATA"
+        return result
     if data["source"]["feed"] in ("indicative", "unknown"):
         result["error"] = "NON_EXECUTABLE_OR_UNKNOWN_FEED"
         return result
@@ -243,7 +246,9 @@ def replay(data, policy=Policy(), through=None):
         if event["action"] == "open":
             reasons = []
             candidate = None
-            if data["source"]["feed"] in ("indicative", "unknown"):
+            if data["source"].get("observation_only") is True:
+                reasons.append("OBSERVATION_ONLY_DATA")
+            elif data["source"]["feed"] in ("indicative", "unknown"):
                 reasons.append("NON_EXECUTABLE_OR_UNKNOWN_FEED")
             elif snapshot is None:
                 reasons.append("NO_AVAILABLE_CHAIN")
@@ -322,7 +327,7 @@ def replay(data, policy=Policy(), through=None):
     return {
         "paper_only": True, "source": data["source"], "policy": asdict(policy),
         "through": cutoff.isoformat() if cutoff is not None else None,
-        "label": "Synthetic scenario replay — not historical performance" if data["source"]["kind"] == "synthetic" else "User-supplied chain replay — provenance and licensing unverified",
+        "label": "Observation-only data — fills blocked; no performance backtest" if data["source"].get("observation_only") is True else "Synthetic scenario replay — not historical performance" if data["source"]["kind"] == "synthetic" else "User-supplied chain replay — provenance and licensing unverified",
         "cash": cash, "realized_pnl": realized, "reserved_risk": money(sum(p["max_loss"] for p in positions.values())),
         "open_positions": list(positions.values()), "ledger": ledger,
         "complete": not positions, "equity": cash if not positions else None,

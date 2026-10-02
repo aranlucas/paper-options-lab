@@ -11,9 +11,17 @@ npm --prefix web run build
 git diff --check
 ```
 
-The financial/API suite covers known option prices and finite-difference Greek checks; scaled multipliers/quantities; bounded payoffs and fee accounting; missing/stale/future/crossed/wide quotes; liquidity/size/IV omissions; asynchronous legs; exercise/delivery/adjustment exclusions; DTE and trading cutoffs; position/cash/quantity/delta/portfolio limits; delayed and missing official cash settlement; early close fees; deterministic replay; indicative feed rejection; malformed/unknown input fields; strict identities/timestamps; exact fixture regeneration; loopback origin/Host guards; JSON limits and duplicate keys; static path restrictions; and absence of an order endpoint. Twenty-seven tests pass, including three added cutoff tests for the follow-up replay-window experiment.
+The financial/API suite covers known option prices and finite-difference Greek checks; scaled multipliers/quantities; bounded payoffs and fee accounting; missing/stale/future/crossed/wide quotes; liquidity/size/IV omissions; asynchronous legs; exercise/delivery/adjustment exclusions; DTE and trading cutoffs; position/cash/quantity/delta/portfolio limits; delayed and missing official cash settlement; early close fees; deterministic replay; indicative feed rejection; malformed/unknown input fields; strict identities/timestamps; exact fixture regeneration; loopback origin/Host guards; JSON limits and duplicate keys; static path restrictions; and absence of an order endpoint. Forty-five tests pass: the original 27 (including three replay-cutoff checks), plus 17 offline-provider tests and one dashboard API integration test.
 
 TypeScript check and the production build pass. Build output is approximately 240.5 KB JS (75 KB gzip) and 10.7 KB CSS (3.1 KB gzip). All seven saved fixtures match their deterministic generator exactly.
+
+## Offline provider follow-up
+
+The importer is checked for aligned columns and bounded inputs, required mechanics, OCC date/side/strike/root identities and aliases, Unix/DST handling, exact expiry versus provider-clock warnings, full-session volume/OI timing, minimum delivery delay, future/stale metadata, null/zero preservation, missing IV without inference, historical IV/Greek injection, unsupported American/physical/adjusted mechanics, and observation-only gates even with relaxed quote-age limits. Both provider-shaped fixtures reproduce exactly. The CLI conversion output validates against the strict schema; its audit creates zero fills. [Saved evidence](provider-import-evidence.json) includes both generated fixtures' audits and rejected entry attempts.
+
+The local full suite first encountered the filesystem sandbox's prohibition on binding a loopback test socket. It passed when rerun with the authorized local-network permission; no code change was needed for that environmental restriction. The new dashboard API test posts the normalized dataset through the existing analysis route and confirms the observation-only error, empty positions and no-performance label. This change does not alter visible dashboard components; the prior browser evidence below applies to the existing UI, and no new browser assertions are claimed.
+
+The first provider PR CI run caught last-bit Mac/Linux differences in synthetic Greek serialization. Fictional export fields are now rounded to ten decimal places for portable exact fixture regeneration; the pricing engine retains native precision. Saved latest-EOD input and compatibility evidence were regenerated together before rerunning hosted checks.
 
 ## Browser interactions
 

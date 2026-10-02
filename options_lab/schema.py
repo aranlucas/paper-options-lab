@@ -62,7 +62,9 @@ def validate_dataset(data):
     if data["schema_version"] != 1 or type(data["schema_version"]) is not int:
         raise InputError("schema_version must be 1")
     source = data["source"]
-    keys(source, ("kind", "name", "feed", "usage_rights"), (), "source")
+    keys(source, ("kind", "name", "feed", "usage_rights"), ("observation_only",), "source")
+    if "observation_only" in source and source["observation_only"] is not True:
+        raise InputError("source.observation_only must be true when present")
     if source["kind"] not in ("synthetic", "imported"):
         raise InputError("source.kind must be synthetic or imported")
     for field in ("name", "feed", "usage_rights"):

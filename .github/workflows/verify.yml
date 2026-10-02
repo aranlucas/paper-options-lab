@@ -39,6 +39,11 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Validate reproducible fixture
         run: python -m options_lab validate --input fixtures/rally.json
+      - name: Validate offline provider conversion
+        run: |
+          python -m options_lab import-marketdata --input fixtures/providers/marketdata-historical.json --metadata fixtures/providers/marketdata-historical.meta.json > /tmp/marketdata-offline.json
+          python -m options_lab validate --input /tmp/marketdata-offline.json
+          python -m options_lab audit-marketdata --input fixtures/providers/marketdata-historical.json --metadata fixtures/providers/marketdata-historical.meta.json
       - name: Install dashboard dependencies
         run: npm --prefix web ci --ignore-scripts --no-audit --no-fund
       - name: Check TypeScript
