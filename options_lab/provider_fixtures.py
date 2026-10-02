@@ -15,7 +15,10 @@ def marketdata_fixture(request_kind="historical", at=None):
     for kind, strike in (("call", 100), ("call", 105), ("put", 100), ("put", 95)):
         symbol = f"DEMO{expiry.astimezone(EASTERN):%y%m%d}{'C' if kind == 'call' else 'P'}{strike * 1000:08}"
         model = analytical(kind, 100, strike, 28 / 365, .25, .04, .01)
-        row = {"optionSymbol": symbol, "underlying": "DEMO-INDEX", "expiration": int((expiry + timedelta(minutes=15)).timestamp()), "side": kind, "strike": strike, "updated": int(at.timestamp()), "underlyingPrice": 100, "bid": round(model["price"] - .05, 4), "ask": round(model["price"] + .05, 4), "bidSize": 12, "askSize": 12, "volume": 120, "openInterest": 500, "iv": None if request_kind == "historical" else .25, **{field: None if request_kind == "historical" else model[field] for field in ("delta", "gamma", "theta", "vega")}}
+        # Quantize fictional export fields for exact Mac/Linux regeneration.
+        # Pricing calculations retain their native precision.
+        greeks = {field: None if request_kind == "historical" else round(model[field], 10) for field in ("delta", "gamma", "theta", "vega")}
+        row = {"optionSymbol": symbol, "underlying": "DEMO-INDEX", "expiration": int((expiry + timedelta(minutes=15)).timestamp()), "side": kind, "strike": strike, "updated": int(at.timestamp()), "underlyingPrice": 100, "bid": round(model["price"] - .05, 4), "ask": round(model["price"] + .05, 4), "bidSize": 12, "askSize": 12, "volume": 120, "openInterest": 500, "iv": None if request_kind == "historical" else .25, **greeks}
         for field, value in row.items():
             packet.setdefault(field, []).append(value)
         specs[symbol] = {"root": "DEMO", "underlying": "DEMO-INDEX", "expires_at": iso(expiry), "last_trade_at": iso(expiry), "exercise": "european", "settlement": "cash", "multiplier": 100, "adjusted": False, "reference": "Fictional fixture convention; not a real exchange contract"}

@@ -21,6 +21,8 @@ The importer is checked for aligned columns and bounded inputs, required mechani
 
 The local full suite first encountered the filesystem sandbox's prohibition on binding a loopback test socket. It passed when rerun with the authorized local-network permission; no code change was needed for that environmental restriction. The new dashboard API test posts the normalized dataset through the existing analysis route and confirms the observation-only error, empty positions and no-performance label. This change does not alter visible dashboard components; the prior browser evidence below applies to the existing UI, and no new browser assertions are claimed.
 
+The first provider PR CI run caught last-bit Mac/Linux differences in synthetic Greek serialization. Fictional export fields are now rounded to ten decimal places for portable exact fixture regeneration; the pricing engine retains native precision. Saved latest-EOD input and compatibility evidence were regenerated together before rerunning hosted checks.
+
 ## Browser interactions
 
 The in-app browser was attempted first. It became unavailable during the initial session, so the installed Playwright CLI was used for isolated browser regression and screenshot capture. After reconnection, the in-app browser loaded the final dashboard and verified the corrected European cash-settlement metadata. The saved browser regression completed successfully with 17 assertions, desktop 1440×1050, mobile 390×844, and zero page exceptions.

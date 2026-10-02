@@ -157,10 +157,10 @@
           "provider_iv": 0.25,
           "iv_origin": "supplied; not model-derived",
           "provider_greeks": {
-            "delta": 0.5266463574326475,
-            "gamma": 0.05743867693183216,
-            "theta": -0.053190710889719946,
-            "vega": 0.11015636671858223
+            "delta": 0.5266463574,
+            "gamma": 0.0574386769,
+            "theta": -0.0531907109,
+            "vega": 0.1101563667
           },
           "provider_expiration": "2026-10-30T20:15:00Z",
           "contract_reference": "Fictional fixture convention; not a real exchange contract",
@@ -178,10 +178,10 @@
           "provider_iv": 0.25,
           "iv_origin": "supplied; not model-derived",
           "provider_greeks": {
-            "delta": 0.2619363096499747,
-            "gamma": 0.047006325690831276,
-            "theta": -0.042281725369303545,
-            "vega": 0.09014911776323802
+            "delta": 0.2619363096,
+            "gamma": 0.0470063257,
+            "theta": -0.0422817254,
+            "vega": 0.0901491178
           },
           "provider_expiration": "2026-10-30T20:15:00Z",
           "contract_reference": "Fictional fixture convention; not a real exchange contract",
@@ -199,10 +199,10 @@
           "provider_iv": 0.25,
           "iv_origin": "supplied; not model-derived",
           "provider_greeks": {
-            "delta": -0.4725868134435265,
-            "gamma": 0.05743867693183216,
-            "theta": -0.04500300768814431,
-            "vega": 0.11015636671858223
+            "delta": -0.4725868134,
+            "gamma": 0.0574386769,
+            "theta": -0.0450030077,
+            "vega": 0.1101563667
           },
           "provider_expiration": "2026-10-30T20:15:00Z",
           "contract_reference": "Fictional fixture convention; not a real exchange contract",
@@ -220,10 +220,10 @@
           "provider_iv": 0.25,
           "iv_origin": "supplied; not model-derived",
           "provider_greeks": {
-            "delta": -0.20920187442320728,
-            "gamma": 0.041515818948072096,
-            "theta": -0.03373205808192809,
-            "vega": 0.07961937880452165
+            "delta": -0.2092018744,
+            "gamma": 0.0415158189,
+            "theta": -0.0337320581,
+            "vega": 0.0796193788
           },
           "provider_expiration": "2026-10-30T20:15:00Z",
           "contract_reference": "Fictional fixture convention; not a real exchange contract",
