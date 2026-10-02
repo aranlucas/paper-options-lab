@@ -6,6 +6,8 @@ from http.server import HTTPServer
 
 from options_lab.fixtures import START, fixture, iso
 from options_lab.server import Handler
+from options_lab.marketdata import convert_marketdata
+from options_lab.provider_fixtures import marketdata_fixture
 
 
 class QuietHandler(Handler):
@@ -57,6 +59,16 @@ class LocalAPITests(unittest.TestCase):
         self.assertEqual(status,403)
         status,_=self.request("/api/health",headers={"Host":"evil.invalid"})
         self.assertEqual(status,403)
+
+    def test_offline_provider_import_stays_observation_only_in_dashboard_api(self):
+        packet,manifest=marketdata_fixture("latest_eod")
+        dataset=convert_marketdata(packet,manifest)["dataset"]
+        body=json.dumps({"dataset":dataset,"at":manifest["retrieved_at"],"quantity":1,"policy":{"max_quote_age_seconds":1000000}})
+        status,data=self.request("/api/analyze","POST",body,{"Content-Type":"application/json"})
+        self.assertEqual(status,200)
+        self.assertEqual(data["comparison"]["error"],"OBSERVATION_ONLY_DATA")
+        self.assertEqual(data["replay"]["open_positions"],[])
+        self.assertIn("no performance backtest",data["replay"]["label"])
 
     def test_invalid_json_duplicate_keys_and_size(self):
         for body in ('{','{"dataset":null,"dataset":null}'):

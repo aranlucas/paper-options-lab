@@ -45,6 +45,20 @@ The dataset’s explicit paper events are plans, not recommendations. Eligible m
 
 Read [research and modeling limits](docs/research.md), [import schema](docs/import-schema.md), and [verification evidence](docs/verification.md). Pricing uses the maintained [QuantLib](https://github.com/lballabio/QuantLib) library and official bindings, pinned to 1.43. See the brief for Cboe, OCC/OIC and broker documentation and alternative library review.
 
+## Free-data compatibility
+
+[Market Data Free Forever](https://www.marketdata.app/docs/account/plans/free-forever/) offers a no-card $0 plan with 100 daily credits, at least 24-hour-old quotes and one year of history. It is useful for offline inspection; historical requests omit IV and Greeks. The [research brief](docs/research.md#free-api-follow-up) explains the constraints and alternatives.
+
+The offline importer accepts saved, bounded provider-shaped JSON plus explicit contract metadata. It makes no API calls and requires no account or token. Missing IV stays null. Every converted dataset is observation-only: comparison and replay block fills even when quote-age limits are relaxed.
+
+```sh
+.venv/bin/python -m options_lab import-marketdata --input fixtures/providers/marketdata-historical.json --metadata fixtures/providers/marketdata-historical.meta.json > /tmp/marketdata-offline.json
+.venv/bin/python -m options_lab validate --input /tmp/marketdata-offline.json
+.venv/bin/python -m options_lab audit-marketdata --input fixtures/providers/marketdata-historical.json --metadata fixtures/providers/marketdata-historical.meta.json
+```
+
+These examples contain fictional DEMO contracts generated offline, not vendor observations. Read the [adapter guide](docs/marketdata-import.md) before converting permitted local exports. A free EOD feed cannot establish intraday fills or historical strategy performance.
+
 ## Structure
 
 `options_lab/`: pure pricing, strict schema, screening/replay, fixtures, CLI, loopback server. `web/`: React + TypeScript dashboard. `tests/`: deterministic financial invariants and fail-closed risk cases. `fixtures/`: generated, clearly synthetic JSON examples. `docs/`: research, schema, design and QA. No broker adapters or production deployment files exist.

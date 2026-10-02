@@ -4,6 +4,8 @@ Use `fixtures/rally.json` as the complete reproducible example. Export it from t
 
 The root object has exactly `schema_version`, `source`, `snapshots`, `settlements`, `events`.
 
+Source optionally accepts `observation_only: true`. If present it must be the boolean true; false, null and truthy substitutes are rejected. Both spread comparison and replay block fills with `OBSERVATION_ONLY_DATA` independently of policy settings. The [offline MarketData adapter](marketdata-import.md) always emits this flag. Omitting or editing a source flag does not validate data provenance or make old observations executable.
+
 | Object | Required fields |
 | --- | --- |
 | Source | `kind`: `synthetic` or `imported`; `name`; `feed`: synthetic for fixtures, `opra`/`licensed`/`indicative`/`unknown` for imports; `usage_rights`: human-readable rights/provenance assertion |

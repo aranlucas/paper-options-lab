@@ -1,0 +1,262 @@
+{
+  "historical": {
+    "fixture_source": "Generated fictional DEMO contracts; no vendor observations",
+    "audit": {
+      "paper_only": true,
+      "label": "Offline quote compatibility audit; not a backtest or performance report",
+      "source": {
+        "kind": "synthetic",
+        "name": "Fictional MarketData-shaped EOD",
+        "feed": "synthetic",
+        "usage_rights": "Generated offline demonstration; no vendor market data",
+        "observation_only": true
+      },
+      "at": "2026-10-03T20:00:00Z",
+      "quote_as_of": "2026-10-02T20:00:00Z",
+      "available_at": "2026-10-03T20:00:00Z",
+      "open_interest_available_at": "2026-10-02T13:30:00Z",
+      "delivery": "free_24h",
+      "metadata": "User-supplied contract references and rights are not independently verified",
+      "fills_created": 0,
+      "iv_inversion": "absent; missing IV remains null",
+      "contracts": [
+        {
+          "id": "DEMO261030C00100000",
+          "provider_iv": null,
+          "iv_origin": "missing",
+          "provider_greeks": {
+            "delta": null,
+            "gamma": null,
+            "theta": null,
+            "vega": null
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "MISSING_IV",
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        },
+        {
+          "id": "DEMO261030C00105000",
+          "provider_iv": null,
+          "iv_origin": "missing",
+          "provider_greeks": {
+            "delta": null,
+            "gamma": null,
+            "theta": null,
+            "vega": null
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "MISSING_IV",
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        },
+        {
+          "id": "DEMO261030P00100000",
+          "provider_iv": null,
+          "iv_origin": "missing",
+          "provider_greeks": {
+            "delta": null,
+            "gamma": null,
+            "theta": null,
+            "vega": null
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "MISSING_IV",
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        },
+        {
+          "id": "DEMO261030P00095000",
+          "provider_iv": null,
+          "iv_origin": "missing",
+          "provider_greeks": {
+            "delta": null,
+            "gamma": null,
+            "theta": null,
+            "vega": null
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "MISSING_IV",
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        }
+      ]
+    },
+    "relaxed_policy": {
+      "max_quote_age_seconds": 1000000,
+      "max_liquidity_age_seconds": 1000000
+    },
+    "comparison_error": "OBSERVATION_ONLY_DATA",
+    "replay_label": "Observation-only data \u2014 fills blocked; no performance backtest",
+    "replay_ledger": [
+      {
+        "at": "2026-10-03T20:00:00Z",
+        "action": "PAPER_REJECTED",
+        "cash": 10000.0,
+        "reserved_risk": 0.0,
+        "paper_only": true,
+        "reasons": [
+          "OBSERVATION_ONLY_DATA"
+        ]
+      }
+    ],
+    "open_positions": [],
+    "reserved_risk": 0.0
+  },
+  "latest_eod": {
+    "fixture_source": "Generated fictional DEMO contracts; no vendor observations",
+    "audit": {
+      "paper_only": true,
+      "label": "Offline quote compatibility audit; not a backtest or performance report",
+      "source": {
+        "kind": "synthetic",
+        "name": "Fictional MarketData-shaped EOD",
+        "feed": "synthetic",
+        "usage_rights": "Generated offline demonstration; no vendor market data",
+        "observation_only": true
+      },
+      "at": "2026-10-03T20:00:00Z",
+      "quote_as_of": "2026-10-02T20:00:00Z",
+      "available_at": "2026-10-03T20:00:00Z",
+      "open_interest_available_at": "2026-10-02T13:30:00Z",
+      "delivery": "free_24h",
+      "metadata": "User-supplied contract references and rights are not independently verified",
+      "fills_created": 0,
+      "iv_inversion": "absent; missing IV remains null",
+      "contracts": [
+        {
+          "id": "DEMO261030C00100000",
+          "provider_iv": 0.25,
+          "iv_origin": "supplied; not model-derived",
+          "provider_greeks": {
+            "delta": 0.5266463574326475,
+            "gamma": 0.05743867693183216,
+            "theta": -0.053190710889719946,
+            "vega": 0.11015636671858223
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        },
+        {
+          "id": "DEMO261030C00105000",
+          "provider_iv": 0.25,
+          "iv_origin": "supplied; not model-derived",
+          "provider_greeks": {
+            "delta": 0.2619363096499747,
+            "gamma": 0.047006325690831276,
+            "theta": -0.042281725369303545,
+            "vega": 0.09014911776323802
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        },
+        {
+          "id": "DEMO261030P00100000",
+          "provider_iv": 0.25,
+          "iv_origin": "supplied; not model-derived",
+          "provider_greeks": {
+            "delta": -0.4725868134435265,
+            "gamma": 0.05743867693183216,
+            "theta": -0.04500300768814431,
+            "vega": 0.11015636671858223
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        },
+        {
+          "id": "DEMO261030P00095000",
+          "provider_iv": 0.25,
+          "iv_origin": "supplied; not model-derived",
+          "provider_greeks": {
+            "delta": -0.20920187442320728,
+            "gamma": 0.041515818948072096,
+            "theta": -0.03373205808192809,
+            "vega": 0.07961937880452165
+          },
+          "provider_expiration": "2026-10-30T20:15:00Z",
+          "contract_reference": "Fictional fixture convention; not a real exchange contract",
+          "warnings": [
+            "PROVIDER_EXPIRATION_TIME_DIFFERS"
+          ],
+          "screen_reasons": [
+            "OBSERVATION_ONLY_DATA",
+            "STALE_QUOTE",
+            "STALE_UNDERLYING"
+          ]
+        }
+      ]
+    },
+    "relaxed_policy": {
+      "max_quote_age_seconds": 1000000,
+      "max_liquidity_age_seconds": 1000000
+    },
+    "comparison_error": "OBSERVATION_ONLY_DATA",
+    "replay_label": "Observation-only data \u2014 fills blocked; no performance backtest",
+    "replay_ledger": [
+      {
+        "at": "2026-10-03T20:00:00Z",
+        "action": "PAPER_REJECTED",
+        "cash": 10000.0,
+        "reserved_risk": 0.0,
+        "paper_only": true,
+        "reasons": [
+          "OBSERVATION_ONLY_DATA"
+        ]
+      }
+    ],
+    "open_positions": [],
+    "reserved_risk": 0.0
+  }
+}
