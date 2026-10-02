@@ -11,7 +11,7 @@ npm --prefix web run build
 git diff --check
 ```
 
-The financial/API suite covers known option prices and finite-difference Greek checks; scaled multipliers/quantities; bounded payoffs and fee accounting; missing/stale/future/crossed/wide quotes; liquidity/size/IV omissions; asynchronous legs; exercise/delivery/adjustment exclusions; DTE and trading cutoffs; position/cash/quantity/delta/portfolio limits; delayed and missing official cash settlement; early close fees; deterministic replay; indicative feed rejection; malformed/unknown input fields; strict identities/timestamps; exact fixture regeneration; loopback origin/Host guards; JSON limits and duplicate keys; static path restrictions; and absence of an order endpoint. Twenty-four tests pass.
+The financial/API suite covers known option prices and finite-difference Greek checks; scaled multipliers/quantities; bounded payoffs and fee accounting; missing/stale/future/crossed/wide quotes; liquidity/size/IV omissions; asynchronous legs; exercise/delivery/adjustment exclusions; DTE and trading cutoffs; position/cash/quantity/delta/portfolio limits; delayed and missing official cash settlement; early close fees; deterministic replay; indicative feed rejection; malformed/unknown input fields; strict identities/timestamps; exact fixture regeneration; loopback origin/Host guards; JSON limits and duplicate keys; static path restrictions; and absence of an order endpoint. Twenty-seven tests pass, including three added cutoff tests for the follow-up replay-window experiment.
 
 TypeScript check and the production build pass. Build output is approximately 240.5 KB JS (75 KB gzip) and 10.7 KB CSS (3.1 KB gzip). All seven saved fixtures match their deterministic generator exactly.
 

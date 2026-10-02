@@ -13,10 +13,13 @@ def main():
     parser.add_argument("--scenario", choices=SCENARIOS, default="rally")
     parser.add_argument("--input", type=Path)
     parser.add_argument("--at", default=iso(START))
+    parser.add_argument("--through", help="Replay only through this timezone-aware ISO-8601 instant")
     parser.add_argument("--quantity", type=int, default=1)
     parser.add_argument("--policy", type=Path)
     parser.add_argument("--port", type=int, default=8792)
     args = parser.parse_args()
+    if args.through is not None and args.command != "replay":
+        parser.error("--through is supported only by replay")
     if args.command == "serve":
         from .server import serve
         serve(args.port)
@@ -33,7 +36,7 @@ def main():
         elif args.command == "validate":
             result = {"valid": True, "paper_only": True, "source": data["source"], "snapshots": len(data["snapshots"])}
         else:
-            result = replay(data, policy)
+            result = replay(data, policy, through=args.through)
         print(json.dumps(result, indent=2, allow_nan=False))
     except (InputError, OSError, ValueError) as exc:
         parser.exit(2, f"Input rejected: {exc}\n")

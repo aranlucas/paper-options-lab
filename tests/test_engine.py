@@ -7,7 +7,7 @@ from pathlib import Path
 from options_lab.engine import Policy, compare, evaluate_pair, policy_from_dict, replay
 from options_lab.fixtures import EXPIRY, SCENARIOS, START, fixture, iso
 from options_lab.pricing import analytical
-from options_lab.schema import InputError, load_json, validate_dataset
+from options_lab.schema import InputError, load_json, timestamp, validate_dataset
 
 
 class RiskTests(unittest.TestCase):
@@ -129,6 +129,42 @@ class RiskTests(unittest.TestCase):
         self.assertIsNone(r["equity"])
         self.assertGreater(r["reserved_risk"],0)
         self.assertEqual(r["realized_pnl"],0)
+
+    def test_replay_cutoff_excludes_future_events_and_does_not_mutate_input(self):
+        original = deepcopy(self.data)
+        before = replay(self.data, through=iso(START))
+        self.assertEqual(before["cash"], Policy().capital)
+        self.assertEqual(before["open_positions"], [])
+        self.assertEqual(before["realized_pnl"], 0)
+        after_one = replay(self.data, through=iso(START + timedelta(seconds=1)))
+        self.assertEqual(len(after_one["open_positions"]), 1)
+        self.assertIsNone(after_one["equity"])
+        self.assertGreater(after_one["reserved_risk"], 0)
+        self.assertTrue(all(timestamp(row["at"]) <= START + timedelta(seconds=1) for row in after_one["ledger"]))
+        self.assertEqual(self.data, original)
+
+    def test_replay_cutoff_requires_available_official_settlement(self):
+        before = replay(self.data, through=iso(EXPIRY + timedelta(seconds=29)))
+        self.assertEqual(len(before["open_positions"]), 3)
+        self.assertIsNone(before["equity"])
+        self.assertEqual(before["realized_pnl"], 0)
+        available = replay(self.data, through=iso(EXPIRY + timedelta(seconds=30)))
+        self.assertTrue(available["complete"])
+        self.assertEqual(available["open_positions"], [])
+        self.assertEqual(available["cash"], replay(self.data)["cash"])
+        self.assertEqual(sum(row["action"] == "PAPER_SETTLED" for row in available["ledger"]), 3)
+        pending = replay(fixture("pending"), through=iso(EXPIRY + timedelta(days=1)))
+        self.assertIsNone(pending["equity"])
+        self.assertEqual(len(pending["open_positions"]), 3)
+
+    def test_replay_cutoff_is_timezone_aware_and_equivalent_to_full_window(self):
+        with self.assertRaises(InputError):
+            replay(self.data, through="2026-10-02T14:00:00")
+        full = replay(self.data)
+        bounded = replay(self.data, through=self.data["events"][-1]["at"])
+        self.assertEqual(full["ledger"], bounded["ledger"])
+        self.assertEqual(full["cash"], bounded["cash"])
+        self.assertEqual(full["reserved_risk"], bounded["reserved_risk"])
 
     def test_early_close_charges_both_sides_and_releases_risk(self):
         result=replay(fixture("vol-crush"))

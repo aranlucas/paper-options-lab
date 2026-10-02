@@ -24,13 +24,14 @@ Open <http://127.0.0.1:8792>. The server binds loopback only, runs one worker, a
 .venv/bin/python -m options_lab compare --scenario rally
 .venv/bin/python -m options_lab replay --scenario selloff
 .venv/bin/python -m options_lab replay --scenario pending
+.venv/bin/python -m options_lab replay --scenario rally --through 2026-10-02T14:00:03Z
 .venv/bin/python -m options_lab validate --input fixtures/rally.json
 .venv/bin/python -m options_lab compare --input fixtures/rally.json --at 2026-10-02T14:00:00Z
 .venv/bin/python -m unittest discover -s tests -v
 npm --prefix web run check
 ```
 
-`--quantity` affects comparison; replay uses the quantities in dataset events. `--policy path.json` supplies a subset of the policy fields (see `options_lab/engine.py`). `--at` defaults to the synthetic fixture entry instant; always specify it for imported data. Reports go to stdout; redirects are explicit local writes.
+`--quantity` affects comparison; replay uses the quantities in dataset events. `--policy path.json` supplies a subset of the policy fields (see `options_lab/engine.py`). `--at` controls comparison and defaults to the synthetic fixture entry instant; always specify it for imported data. Replay processes the full planned dataset by default, including future scenario events. CLI `--through` instead produces an as-of replay, excludes later events, and recognizes settlement only when available by that instant. Reports go to stdout; redirects are explicit local writes.
 
 ## What you can explore
 

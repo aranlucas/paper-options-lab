@@ -203,8 +203,14 @@ def compare(data, at, policy=Policy(), quantity=1, snapshot_id=None):
     return result
 
 
-def replay(data, policy=Policy()):
+def replay(data, policy=Policy(), through=None):
     validate_dataset(data)
+    cutoff = timestamp(through) if through is not None else None
+    events = [event for event in data["events"] if cutoff is None or timestamp(event["at"]) <= cutoff]
+    # An explicit observation evaluates settlement availability at the cutoff,
+    # even when no preplanned dataset event occurs at that exact instant.
+    if cutoff is not None and (not events or timestamp(events[-1]["at"]) < cutoff):
+        events = [*events, {"at": cutoff.isoformat(), "action": "observe"}]
     cash = money(policy.capital)
     positions = {}
     ledger = []
@@ -214,7 +220,7 @@ def replay(data, policy=Policy()):
     def record(event, action, **values):
         ledger.append({"at": event["at"], "action": action, "cash": cash, "reserved_risk": money(sum(p["max_loss"] for p in positions.values())), "paper_only": True, **values})
 
-    for event in data["events"]:
+    for event in events:
         at = timestamp(event["at"])
         for position_id, position in list(positions.items()):
             expiry = timestamp(position["expires_at"])
@@ -315,6 +321,7 @@ def replay(data, policy=Policy()):
             record(event, "PAPER_CLOSED", position_id=event["position_id"], credit=credit, fees=fee, pnl=pnl)
     return {
         "paper_only": True, "source": data["source"], "policy": asdict(policy),
+        "through": cutoff.isoformat() if cutoff is not None else None,
         "label": "Synthetic scenario replay — not historical performance" if data["source"]["kind"] == "synthetic" else "User-supplied chain replay — provenance and licensing unverified",
         "cash": cash, "realized_pnl": realized, "reserved_risk": money(sum(p["max_loss"] for p in positions.values())),
         "open_positions": list(positions.values()), "ledger": ledger,
