@@ -1,0 +1,91 @@
+{
+  "paper_only": true,
+  "source": "synthetic rally fixture",
+  "label": "Temporal accounting validation, not historical performance",
+  "baseline_full_planned_replay": {
+    "through": null,
+    "cash": 10271.99,
+    "realized_pnl": 271.99,
+    "reserved_risk": 0.0,
+    "equity": 10271.99,
+    "complete": true,
+    "open_positions": 0,
+    "ledger_actions": [
+      "PAPER_OPENED",
+      "PAPER_OPENED",
+      "PAPER_OPENED",
+      "PAPER_REJECTED",
+      "PAPER_SETTLED",
+      "PAPER_SETTLED",
+      "PAPER_SETTLED",
+      "PAPER_OBSERVED"
+    ]
+  },
+  "bounded_windows": [
+    {
+      "description": "before entry",
+      "through": "2026-10-02T14:00:00+00:00",
+      "cash": 10000.0,
+      "realized_pnl": 0.0,
+      "reserved_risk": 0.0,
+      "equity": 10000.0,
+      "complete": true,
+      "open_positions": 0,
+      "ledger_actions": [
+        "PAPER_OBSERVED"
+      ]
+    },
+    {
+      "description": "three paper entries",
+      "through": "2026-10-02T14:00:03+00:00",
+      "cash": 9272.29,
+      "realized_pnl": 0.0,
+      "reserved_risk": 731.61,
+      "equity": null,
+      "complete": false,
+      "open_positions": 3,
+      "ledger_actions": [
+        "PAPER_OPENED",
+        "PAPER_OPENED",
+        "PAPER_OPENED"
+      ]
+    },
+    {
+      "description": "before official settlement publication",
+      "through": "2026-11-01T20:00:29+00:00",
+      "cash": 9272.29,
+      "realized_pnl": 0.0,
+      "reserved_risk": 731.61,
+      "equity": null,
+      "complete": false,
+      "open_positions": 3,
+      "ledger_actions": [
+        "PAPER_OPENED",
+        "PAPER_OPENED",
+        "PAPER_OPENED",
+        "PAPER_REJECTED",
+        "PAPER_OBSERVED"
+      ]
+    },
+    {
+      "description": "at official settlement publication",
+      "through": "2026-11-01T20:00:30+00:00",
+      "cash": 10271.99,
+      "realized_pnl": 271.99,
+      "reserved_risk": 0.0,
+      "equity": 10271.99,
+      "complete": true,
+      "open_positions": 0,
+      "ledger_actions": [
+        "PAPER_OPENED",
+        "PAPER_OPENED",
+        "PAPER_OPENED",
+        "PAPER_REJECTED",
+        "PAPER_SETTLED",
+        "PAPER_SETTLED",
+        "PAPER_SETTLED",
+        "PAPER_OBSERVED"
+      ]
+    }
+  ]
+}
