@@ -1,20 +1,23 @@
 {
   "name": "paper-options-lab-ui",
-  "private": true,
   "version": "0.1.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "lint": "cd .. && oxlint"
   },
   "dependencies": {
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@oxlint/plugins": "1.86.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "oxlint": "1.86.0",
     "typescript": "7.0.2",
     "vite": "8.3.2"
   }

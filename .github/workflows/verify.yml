@@ -46,7 +46,10 @@ jobs:
           python -m options_lab audit-marketdata --input fixtures/providers/marketdata-historical.json --metadata fixtures/providers/marketdata-historical.meta.json
       - name: Install dashboard dependencies
         run: npm --prefix web ci --ignore-scripts --no-audit --no-fund
+      - name: Lint JavaScript and TypeScript
+        run: npm --prefix web run lint
       - name: Check TypeScript
         run: npm --prefix web run check
       - name: Build local dashboard
         run: npm --prefix web run build
+
