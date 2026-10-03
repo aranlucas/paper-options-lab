@@ -62,3 +62,7 @@ These examples contain fictional DEMO contracts generated offline, not vendor ob
 ## Structure
 
 `options_lab/`: pure pricing, strict schema, screening/replay, fixtures, CLI, loopback server. `web/`: React + TypeScript dashboard. `tests/`: deterministic financial invariants and fail-closed risk cases. `fixtures/`: generated, clearly synthetic JSON examples. `docs/`: research, schema, design and QA. No broker adapters or production deployment files exist.
+
+## Lint policy
+
+Run `npm --prefix web run lint` to check all owned JavaScript and TypeScript, including the browser QA script. Anti-slop is vendored under `web/tools/oxlint/anti-slop` at the revision in its `UPSTREAM.md`; all 18 generic rules and native `oxc/no-accumulating-spread` are errors. Oxlint and its plugin bridge are pinned together. The Playwright CLI consumes `tests/browser_qa.js` as a function expression, so only ESLint’s unused-expression check is disabled for that one file. No anti-slop rules are disabled.
