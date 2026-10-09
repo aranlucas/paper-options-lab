@@ -13,10 +13,10 @@ python3 -m venv .venv
 .venv/bin/python -m pip install --only-binary=:all: -r requirements.txt
 npm --prefix web ci
 npm --prefix web run build
-.venv/bin/python -m options_lab serve --port 8792
+make dev
 ```
 
-Open <http://127.0.0.1:8792>. The server binds loopback only, runs one worker, and computes on demand. Stop it with Ctrl+C. The build is ~75 KB gzipped JS. There are no background trading jobs. Draft pull requests run one bounded GitHub Actions verification job; it does not deploy anything.
+Open <https://paper-options-lab.localhost>; `make dev` runs the server through [Portless](https://github.com/vercel-labs/portless) (`npm install -g portless`, Node 24+), whose first run may ask for `sudo` to bind port 443 and trust a local certificate. The server binds loopback only, runs one worker, and computes on demand. Stop it with Ctrl+C. The build is ~75 KB gzipped JS. There are no background trading jobs. Draft pull requests run one bounded GitHub Actions verification job; it does not deploy anything.
 
 ## CLI
 

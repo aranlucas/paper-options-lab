@@ -1,8 +1,9 @@
 """Loopback-only HTTP server. Offline computations and static assets only."""
 import json
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 from .engine import compare, policy_from_dict, replay
 from .fixtures import SCENARIOS, START, fixture, iso
@@ -10,6 +11,11 @@ from .schema import InputError, keys, load_json, timestamp, validate_dataset
 
 ROOT = Path(__file__).resolve().parent.parent
 MAX_BODY = 2 * 1024 * 1024
+
+
+def portless_origin():
+    """Return the origin Portless assigned to this process, if any."""
+    return os.environ.get("PORTLESS_URL", "").rstrip("/") or None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -29,7 +35,11 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def valid_host(self):
-        return self.headers.get("Host") in (f"127.0.0.1:{self.server.server_port}", f"localhost:{self.server.server_port}")
+        expected = {f"127.0.0.1:{self.server.server_port}", f"localhost:{self.server.server_port}"}
+        public_origin = getattr(self.server, "public_origin", None)
+        if public_origin:
+            expected.add(urlsplit(public_origin).netloc)
+        return self.headers.get("Host") in expected
 
     def do_GET(self):
         if not self.valid_host():
@@ -60,6 +70,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         origin = self.headers.get("Origin")
         expected = {f"http://127.0.0.1:{self.server.server_port}", f"http://localhost:{self.server.server_port}"}
+        public_origin = getattr(self.server, "public_origin", None)
+        if public_origin:
+            expected.add(public_origin)
         if not self.valid_host() or (origin is not None and origin not in expected):
             self.send(403, {"error": "same-origin loopback requests only"})
             return
@@ -88,8 +101,10 @@ class Handler(BaseHTTPRequestHandler):
 def serve(port=8792):
     if not 1024 <= port <= 65535:
         raise ValueError("port must be between 1024 and 65535")
-    print(f"Paper-only local dashboard: http://127.0.0.1:{port}", flush=True)
+    public_origin = portless_origin()
     server = HTTPServer(("127.0.0.1", port), Handler)  # single worker, bounded CPU; no QuantLib shared globals
+    server.public_origin = public_origin
+    print(f"Paper-only local dashboard: {public_origin or f'http://127.0.0.1:{port}'}", flush=True)
     server.timeout = 10
     try:
         server.serve_forever()
