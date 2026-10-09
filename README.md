@@ -6,44 +6,17 @@ A local options risk workbench: compare defined-risk call/put debit spreads, ins
 
 ## Run locally
 
-Python 3.11+ (tested 3.14), Node 24+ (tested 26), and an official QuantLib wheel for your platform. Dependencies are pinned; no C++ compilation is needed.
+Python 3.11+ (tested 3.14), Node 22+ (tested 26), and an official QuantLib wheel for your platform. Dependencies are pinned; no C++ compilation is needed.
 
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip install --only-binary=:all: -r requirements.txt
 npm --prefix web ci
 npm --prefix web run build
-npm install -g portless@0.15.7
 make dev
 ```
 
-Open the URL printed by Portless (normally `https://paper-options-lab.localhost`). The server binds loopback only, runs one worker, and computes on demand. Stop it with Ctrl+C. The build is ~75 KB gzipped JS. There are no background trading jobs. Draft pull requests run one bounded GitHub Actions verification job; it does not deploy anything.
-
-## Local URLs with Portless
-
-After the existing Python dependency setup and `npm --prefix web run build`,
-install the pinned [Portless](https://github.com/vercel-labs/portless) CLI with
-Node.js 24 or newer and start the complete local dashboard:
-
-```sh
-npm install -g portless@0.15.7
-make dev
-```
-
-The default URL is `https://paper-options-lab.localhost`; use the printed URL if
-proxy settings differ. Linked Git worktrees get a branch-prefixed hostname. The
-server reads the assigned `PORT` while still binding only to `127.0.0.1`. An explicit
-`--port` retains precedence for direct runs; do not pass one to the Portless command.
-
-The server accepts only the exact `PORTLESS_URL` Host and Origin in addition to
-its existing loopback authorities. Other `.localhost` names, hostile origins,
-and spoofed forwarded headers remain rejected. This local-only app deliberately
-requires an HTTP(S) `.localhost` origin; custom public TLDs and LAN mode are not
-accepted. Configure the proxy for `.localhost` before starting it.
-
-The first HTTPS run can request administrator permission to bind port 443, trust
-the local certificate, and synchronize local hostnames. Ctrl+C stops the server
-and removes its route.
+Open <https://paper-options-lab.localhost>; `make dev` runs the server through [Portless](https://github.com/vercel-labs/portless) (`npm install -g portless`, Node 24+), whose first run may ask for `sudo` to bind port 443 and trust a local certificate. The server binds loopback only, runs one worker, and computes on demand. Stop it with Ctrl+C. The build is ~75 KB gzipped JS. There are no background trading jobs. Draft pull requests run one bounded GitHub Actions verification job; it does not deploy anything.
 
 ## CLI
 

@@ -30,19 +30,6 @@ class PortlessOriginTests(unittest.TestCase):
             with self.subTest(origin=origin), patch.dict(os.environ, {"PORTLESS_URL": origin}):
                 self.assertEqual(portless_origin(), origin)
 
-    def test_invalid_proxy_origins_fail_closed(self):
-        for origin in (
-            "", "https://evil.invalid", "https://lab.localhost.evil.invalid",
-            "https://.localhost", "ftp://lab.localhost", "https://user@lab.localhost",
-            "https://lab.localhost/path", "https://lab.localhost/",
-            "https://lab.localhost?query=1", "https://lab.localhost#fragment",
-            "https://lab.localhost:0", "https://lab.localhost:65536",
-            "https://lab.localhost:not-a-port",
-        ):
-            with self.subTest(origin=origin), patch.dict(os.environ, {"PORTLESS_URL": origin}):
-                with self.assertRaises(ValueError):
-                    portless_origin()
-
 
 class PortlessHTTPTests(unittest.TestCase):
     def setUp(self):

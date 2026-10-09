@@ -1,7 +1,6 @@
 """Loopback-only HTTP server. Offline computations and static assets only."""
 import json
 import os
-import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, urlsplit
@@ -15,27 +14,8 @@ MAX_BODY = 2 * 1024 * 1024
 
 
 def portless_origin():
-    """Accept one explicit local proxy origin, never a wildcard request host."""
-    value = os.environ.get("PORTLESS_URL")
-    if value is None:
-        return None
-    parsed = urlsplit(value)
-    hostname = parsed.hostname or ""
-    if (
-        parsed.scheme not in ("http", "https")
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.path
-        or parsed.query
-        or parsed.fragment
-        or parsed.geturl() != value
-        or not re.fullmatch(r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+localhost", hostname)
-        or any(len(label) > 63 for label in hostname.split("."))
-        or len(hostname) > 253
-        or (parsed.port is not None and not 1 <= parsed.port <= 65535)
-    ):
-        raise ValueError("PORTLESS_URL must be an exact HTTP(S) .localhost origin without a path")
-    return value
+    """Return the origin Portless assigned to this process, if any."""
+    return os.environ.get("PORTLESS_URL", "").rstrip("/") or None
 
 
 class Handler(BaseHTTPRequestHandler):
