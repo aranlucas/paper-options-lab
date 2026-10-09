@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .engine import compare, policy_from_dict, replay
@@ -25,7 +26,7 @@ def main():
     parser.add_argument("--through", help="Replay only through this timezone-aware ISO-8601 instant")
     parser.add_argument("--quantity", type=int, default=1)
     parser.add_argument("--policy", type=Path)
-    parser.add_argument("--port", type=int, default=8792)
+    parser.add_argument("--port", type=int, default=os.environ.get("PORT", "8792"))
     args = parser.parse_args()
     if args.through is not None and args.command != "replay":
         parser.error("--through is supported only by replay")
