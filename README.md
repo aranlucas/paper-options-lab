@@ -43,8 +43,7 @@ accepted. Configure the proxy for `.localhost` before starting it.
 
 The first HTTPS run can request administrator permission to bind port 443, trust
 the local certificate, and synchronize local hostnames. Ctrl+C stops the server
-and removes its route. Use `make dev-direct` for direct access at `http://127.0.0.1:8792`, or
-`.venv/bin/python -m options_lab serve --port 8792` to select the port explicitly.
+and removes its route.
 
 ## CLI
 
