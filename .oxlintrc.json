@@ -10,14 +10,12 @@
     ".opencode/**",
     ".pi/**",
     ".roo/**",
-    ".windsurf/**",
-    "tools/oxlint/anti-slop/**",
-    "web/tools/oxlint/anti-slop/**"
+    ".windsurf/**"
   ],
   "jsPlugins": [
     {
       "name": "anti-slop",
-      "specifier": "./web/tools/oxlint/anti-slop/index.ts"
+      "specifier": "./web/node_modules/@aranlucas/oxlint-plugin-anti-slop/dist/index.js"
     }
   ],
   "rules": {
