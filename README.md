@@ -65,4 +65,4 @@ These examples contain fictional DEMO contracts generated offline, not vendor ob
 
 ## Lint policy
 
-Run `npm --prefix web run lint` to check all owned JavaScript and TypeScript, including the browser QA script. Anti-slop is vendored under `web/tools/oxlint/anti-slop` at the revision in its `UPSTREAM.md`; all 18 generic rules and native `oxc/no-accumulating-spread` are errors. Oxlint and its plugin bridge are pinned together. The Playwright CLI consumes `tests/browser_qa.js` as a function expression, so only ESLint’s unused-expression check is disabled for that one file. No anti-slop rules are disabled.
+Run `npm --prefix web run lint` to check all owned JavaScript and TypeScript, including the browser QA script. Anti-slop comes from the `@aranlucas/oxlint-plugin-anti-slop` package; all 18 generic rules and native `oxc/no-accumulating-spread` are errors. The Playwright CLI consumes `tests/browser_qa.js` as a function expression, so only ESLint’s unused-expression check is disabled for that one file. No anti-slop rules are disabled.
