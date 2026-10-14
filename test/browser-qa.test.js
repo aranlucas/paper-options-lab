@@ -1,5 +1,5 @@
 // Run with the installed Playwright CLI:
-// playwright-cli --session paper-options run-code --filename tests/browser_qa.js
+// playwright-cli --session paper-options run-code --filename test/browser-qa.test.js
 async (page) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -103,6 +103,78 @@ async (page) => {
   await page
     .getByRole("button", { name: "Call 100 / 105 1 spread · ×100 · Nov 1", exact: true })
     .click();
+  const slider = page.getByRole("slider", { name: "Hypothetical settlement value" });
+  const initialSettlement = await slider.inputValue();
+  await slider.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.locator(".row-select").filter({ hasText: "Call 100 / 110" }).click();
+  check(
+    (await slider.inputValue()) === initialSettlement,
+    "New candidate resets the payoff slider",
+  );
+
+  await page.locator("input[type=file]").setInputFiles({
+    name: "invalid.json",
+    mimeType: "application/json",
+    buffer: Buffer.from('{"schema_version":1,"snapshots":[]}'),
+  });
+  await page.getByRole("alert").waitFor({ state: "visible" });
+  check(
+    await page.getByRole("button", { name: "Compare & replay", exact: true }).isDisabled(),
+    "Invalid imports cannot be analyzed",
+  );
+  await page.getByLabel("Dataset", { exact: true }).selectOption("flat");
+  await page.getByText("6 eligible", { exact: true }).waitFor({ state: "visible" });
+
+  await page.route("**/api/analyze", (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: "application/json",
+      body: '{"error":{"unexpected":"shape"}}',
+    }),
+  );
+  await page.getByRole("button", { name: "Compare & replay", exact: true }).click();
+  await page.getByRole("alert").waitFor({ state: "visible" });
+  check(
+    (await page.getByRole("alert").innerText()) === "Analysis failed",
+    "Nontext API errors use a safe fallback",
+  );
+  check(
+    (await page.locator(".spread-table tbody tr").count()) === 1,
+    "Failed analysis clears old candidates",
+  );
+  await page.unroute("**/api/analyze");
+
+  await page.route("**/api/analyze", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: '{"comparison":{"candidates":[false]}}',
+    }),
+  );
+  await page.getByRole("button", { name: "Compare & replay", exact: true }).click();
+  await page.getByRole("alert").waitFor({ state: "visible" });
+  check(
+    !(await page.locator(".ledger").count()),
+    "Malformed successful responses cannot reach the ledger",
+  );
+  await page.unroute("**/api/analyze");
+  await page.getByRole("button", { name: "Compare & replay", exact: true }).click();
+  await page.getByText("6 eligible", { exact: true }).waitFor({ state: "visible" });
+  check(
+    await page.locator(".ledger").isVisible(),
+    "A valid response recovers after a malformed response",
+  );
+  await page.getByLabel("Dataset", { exact: true }).selectOption("rally");
+  await page.getByText("6 eligible", { exact: true }).waitFor({ state: "visible" });
+  await page
+    .getByRole("button", { name: "Call 100 / 105 1 spread · ×100 · Nov 1", exact: true })
+    .click();
+  check(
+    (await slider.inputValue()) === initialSettlement,
+    "Reloaded scenario initializes settlement from spot",
+  );
+
   await page.screenshot({ path: "output/playwright/desktop.png", fullPage: false });
   await page.screenshot({ path: "output/playwright/desktop-full.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -121,5 +193,5 @@ async (page) => {
   await page.evaluate(() => window.scrollTo(0, 0));
   check(errors.length === 0, `Browser errors: ${errors.join("; ")}`);
 
-  return { passed: true, checks: 17, desktop: "1440×1050", mobile: "390×844", pageErrors: errors };
+  return { passed: true, checks: 24, desktop: "1440×1050", mobile: "390×844", pageErrors: errors };
 };

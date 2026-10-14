@@ -27,7 +27,7 @@ Open <https://paper-options-lab.localhost>; `make dev` runs the server through [
 .venv/bin/python -m options_lab replay --scenario rally --through 2026-10-02T14:00:03Z
 .venv/bin/python -m options_lab validate --input fixtures/rally.json
 .venv/bin/python -m options_lab compare --input fixtures/rally.json --at 2026-10-02T14:00:00Z
-.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m unittest discover -s test -v
 npm --prefix web run check
 ```
 
@@ -61,8 +61,8 @@ These examples contain fictional DEMO contracts generated offline, not vendor ob
 
 ## Structure
 
-`options_lab/`: pure pricing, strict schema, screening/replay, fixtures, CLI, loopback server. `web/`: React + TypeScript dashboard. `tests/`: deterministic financial invariants and fail-closed risk cases. `fixtures/`: generated, clearly synthetic JSON examples. `docs/`: research, schema, design and QA. No broker adapters or production deployment files exist.
+`options_lab/`: pure pricing, strict schema, screening/replay, fixtures, CLI, loopback server. `web/`: React + TypeScript dashboard. `test/`: deterministic financial invariants and fail-closed risk cases. `fixtures/`: generated, clearly synthetic JSON examples. `docs/`: research, schema, design and QA. No broker adapters or production deployment files exist.
 
 ## Lint policy
 
-Run `npm --prefix web run lint` to check all owned JavaScript and TypeScript, including the browser QA script. Anti-slop comes from the `@aranlucas/oxlint-plugin-anti-slop` package; all 18 generic rules and native `oxc/no-accumulating-spread` are errors. The Playwright CLI consumes `tests/browser_qa.js` as a function expression, so only ESLint’s unused-expression check is disabled for that one file. No anti-slop rules are disabled.
+Run `npm --prefix web run lint` to check all owned JavaScript and TypeScript, including the browser QA script. Anti-slop comes from the `@aranlucas/oxlint-plugin-anti-slop` package; all 18 generic rules and native `oxc/no-accumulating-spread` are errors. The Playwright CLI consumes `test/browser-qa.test.js` as a function expression, so only ESLint’s unused-expression check is disabled for that one file. No anti-slop rules are disabled.

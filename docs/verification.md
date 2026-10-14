@@ -5,7 +5,7 @@ Local final QA: October 1, 2026 Pacific. Python 3.14.7, QuantLib 1.43, Node 26.1
 ## Automated checks
 
 ```sh
-.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m unittest discover -s test -v
 npm --prefix web run check
 npm --prefix web run build
 git diff --check
@@ -27,11 +27,11 @@ The first provider PR CI run caught last-bit Mac/Linux differences in synthetic 
 
 The in-app browser was attempted first. It became unavailable during the initial session, so the installed Playwright CLI was used for isolated browser regression and screenshot capture. After reconnection, the in-app browser loaded the final dashboard and verified the corrected European cash-settlement metadata. The saved browser regression completed successfully with 17 assertions, desktop 1440×1050, mobile 390×844, and zero page exceptions.
 
-The script is `tests/browser_qa.js`. Run it with the installed Playwright CLI after starting the loopback server:
+The script is `test/browser-qa.test.js`. Run it with the installed Playwright CLI after starting the loopback server:
 
 ```sh
 playwright-cli --session paper-options open http://127.0.0.1:8792
-playwright-cli --session paper-options run-code --filename tests/browser_qa.js
+playwright-cli --session paper-options run-code --filename test/browser-qa.test.js
 playwright-cli --session paper-options close
 ```
 

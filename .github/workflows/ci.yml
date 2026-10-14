@@ -44,7 +44,7 @@ jobs:
 
       - parallel:
           - name: Test accounting and local API
-            run: python -m unittest discover -s tests -v
+            run: python -m unittest discover -s test -v
 
           - name: Validate reproducible fixture
             run: python -m options_lab validate --input fixtures/rally.json
@@ -57,6 +57,12 @@ jobs:
 
           - name: Lint
             run: npm --prefix web run lint
+
+          - name: Test frontend boundaries
+            run: npm --prefix web test
+
+          - name: Check formatting
+            run: npm --prefix web run format:check
 
           - name: Typecheck
             run: npm --prefix web run check

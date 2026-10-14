@@ -1,16 +1,25 @@
-import { useEffect, useState } from "react";
-import { Candidate, num, usd } from "./types";
+import { useState } from "react";
+import type { Candidate } from "./types";
+import { num, usd } from "./types";
 
-export default function Payoff({ candidate: c, spot }: { candidate: Candidate; spot: number }) {
+type PayoffProps = { candidate: Candidate; spot: number };
+
+export default function Payoff({ candidate: c, spot }: PayoffProps) {
   const [value, setValue] = useState(spot);
-  useEffect(() => setValue(spot), [c.id, spot]);
-  const data = c.payoff!;
+  const data = c.payoff;
+  const first = data?.at(0);
+  const last = data?.at(-1);
+  const loss = c.expiry_max_loss;
 
-  const xmin = data[0].spot,
-    xmax = data[data.length - 1].spot;
+  if (!data || !first || !last || first.spot >= last.spot || loss === undefined) {
+    return null;
+  }
 
-  const ymin = Math.min(...data.map((p) => p.pnl), 0) - 35,
-    ymax = Math.max(...data.map((p) => p.pnl), 0) + 35;
+  const xmin = first.spot;
+  const xmax = last.spot;
+
+  const ymin = Math.min(...data.map((p) => p.pnl), 0) - 35;
+  const ymax = Math.max(...data.map((p) => p.pnl), 0) + 35;
 
   const x = (s: number) => 48 + ((s - xmin) / (xmax - xmin)) * 464;
   const y = (p: number) => 24 + ((ymax - p) / (ymax - ymin)) * 186;
@@ -21,7 +30,7 @@ export default function Payoff({ candidate: c, spot }: { candidate: Candidate; s
     (intrinsic(value, c.long_strike) - intrinsic(value, c.short_strike)) *
       c.multiplier *
       c.quantity -
-    c.expiry_max_loss!;
+    loss;
 
   return (
     <div className="payoff">
@@ -51,11 +60,16 @@ export default function Payoff({ candidate: c, spot }: { candidate: Candidate; s
         <path d={path} className="payline" />
         <line x1={x(value)} x2={x(value)} y1="24" y2="210" className="crosshair" />
         <circle cx={x(value)} cy={y(pnl)} r="5" className="point" />
-        {[xmin, c.long_strike, c.short_strike, xmax]
-          .sort((a, b) => a - b)
-          .map((v, i) => (
-            <text key={i} x={x(v)} y="231" textAnchor="middle">
-              {num(v, 0)}
+        {[
+          { id: "minimum", value: xmin },
+          { id: "long-strike", value: c.long_strike },
+          { id: "short-strike", value: c.short_strike },
+          { id: "maximum", value: xmax },
+        ]
+          .toSorted((a, b) => a.value - b.value)
+          .map((tick) => (
+            <text key={tick.id} x={x(tick.value)} y="231" textAnchor="middle">
+              {num(tick.value, 0)}
             </text>
           ))}
       </svg>
