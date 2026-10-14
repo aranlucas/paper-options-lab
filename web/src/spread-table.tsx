@@ -1,16 +1,22 @@
-import { Candidate, num, reason, usd } from "./types";
+import type { Candidate } from "./types";
+import { num, reason, usd } from "./types";
 
-export default function SpreadTable({
-  candidates,
-  selected,
-  onSelect,
-}: {
+type SpreadTableProps = {
   candidates: Candidate[];
   selected: string;
   onSelect: (id: string) => void;
-}) {
+};
+
+export default function SpreadTable({ candidates, selected, onSelect }: SpreadTableProps) {
   return (
-    <div className="table-scroll" role="region" aria-label="Spread comparison table" tabIndex={0}>
+    <div
+      className="table-scroll"
+      role="region"
+      aria-label="Spread comparison table"
+      // Keyboard users need focus on this region to scroll the full table.
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+    >
       <table className="spread-table">
         <thead>
           <tr>
@@ -26,6 +32,7 @@ export default function SpreadTable({
             <tr key={c.id} className={c.id === selected ? "selected" : ""}>
               <td>
                 <button
+                  type="button"
                   className="row-select"
                   onClick={() => onSelect(c.id)}
                   aria-pressed={c.id === selected}

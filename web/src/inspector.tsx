@@ -1,14 +1,18 @@
-import Payoff from "./Payoff";
-import { Candidate, num, reason, usd } from "./types";
+import Payoff from "./payoff";
+import type { Candidate } from "./types";
+import { num, reason, usd } from "./types";
 
-export default function Inspector({ candidate: c, spot }: { candidate?: Candidate; spot: number }) {
-  if (!c)
+type InspectorProps = { candidate?: Candidate; spot: number };
+
+export default function Inspector({ candidate: c, spot }: InspectorProps) {
+  if (!c) {
     return (
       <aside className="inspector">
         <h2>Spread detail</h2>
         <p className="muted">Choose a spread to inspect its risk, costs, and rejection reasons.</p>
       </aside>
     );
+  }
 
   return (
     <aside className="inspector">
@@ -47,7 +51,7 @@ export default function Inspector({ candidate: c, spot }: { candidate?: Candidat
               <strong>{num(c.break_even)}</strong>
             </div>
           </div>
-          <Payoff candidate={c} spot={spot} />
+          <Payoff key={`${c.id}:${spot}`} candidate={c} spot={spot} />
           <div className="section-title">
             <h3>Model Greeks</h3>
             <span>QuantLib · at decision time</span>

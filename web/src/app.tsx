@@ -1,8 +1,11 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
-import Inspector from "./Inspector";
-import SpreadTable from "./SpreadTable";
-import Ledger from "./Ledger";
-import { Analysis, Dataset, num, reason } from "./types";
+import type { FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
+import Inspector from "./inspector";
+import SpreadTable from "./spread-table";
+import Ledger from "./ledger";
+import type { Analysis, Dataset } from "./types";
+import { num, reason } from "./types";
+import { apiError, parseAnalysis, parseDataset } from "./parse-data";
 
 const labels = {
   rally: "Rally +8%",
@@ -77,27 +80,39 @@ export default function App() {
         signal: abort.signal,
       });
 
-      const body = await response.json();
+      const text = await response.text();
 
-      if (!response.ok) throw new Error(body.error ?? "Analysis failed");
+      if (!response.ok) {
+        throw new Error(apiError(text, "Analysis failed"));
+      }
 
-      if (token !== generation.current) return;
+      if (token !== generation.current) {
+        return;
+      }
+
+      const body = parseAnalysis(text);
       setAnalysis(body);
       setSelected(
-        body.comparison.candidates.find((c: { eligible: boolean }) => c.eligible)?.id ??
+        body.comparison.candidates.find((c) => c.eligible)?.id ??
           body.comparison.candidates[0]?.id ??
           "",
       );
     } catch (e) {
-      if (!abort.signal.aborted && token === generation.current)
+      if (!abort.signal.aborted && token === generation.current) {
         setError(e instanceof Error ? e.message : "Unable to analyze data");
+      }
     } finally {
-      if (token === generation.current) setLoading(false);
+      if (token === generation.current) {
+        setLoading(false);
+      }
     }
   }
 
   useEffect(() => {
-    if (scenario === "imported") return;
+    if (scenario === "imported") {
+      return;
+    }
+
     const abort = new AbortController();
     setLoading(true);
     setError("");
@@ -105,22 +120,31 @@ export default function App() {
     setDataset(undefined);
     request.current?.abort();
     generation.current++;
-    fetch(`/api/fixture/${scenario}`, { signal: abort.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load scenario");
-        const data: Dataset = await response.json();
 
-        if (abort.signal.aborted) return;
-        setDataset(data);
-        setAt(data.snapshots[0].as_of);
-        void analyze(data, data.snapshots[0].as_of, controls);
-      })
-      .catch((e) => {
-        if (!abort.signal.aborted) {
-          setError(e.message);
-          setLoading(false);
-        }
-      });
+    async function loadScenario() {
+      const response = await fetch(`/api/fixture/${scenario}`, { signal: abort.signal });
+
+      if (!response.ok) {
+        throw new Error("Unable to load scenario");
+      }
+
+      const data = parseDataset(await response.text());
+
+      if (abort.signal.aborted) {
+        return;
+      }
+
+      setDataset(data);
+      setAt(data.snapshots[0].as_of);
+      await analyze(data, data.snapshots[0].as_of, controls);
+    }
+
+    loadScenario().catch((failure) => {
+      if (!abort.signal.aborted) {
+        setError(failure instanceof Error ? failure.message : "Unable to load scenario");
+        setLoading(false);
+      }
+    });
 
     return () => abort.abort();
     // Scenario changes preserve user cost/risk controls; submit to recompute edits.
@@ -152,7 +176,11 @@ export default function App() {
   const submit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (dataset) void analyze(dataset, at, controls);
+    if (dataset) {
+      analyze(dataset, at, controls).catch((failure) => {
+        setError(failure instanceof Error ? failure.message : "Unable to analyze data");
+      });
+    }
   };
 
   async function importFile(input: File) {
@@ -162,15 +190,15 @@ export default function App() {
     setLoading(false);
 
     try {
-      if (input.size > 2 * 1024 * 1024) throw new Error("JSON file exceeds the 2 MiB limit.");
-      const data = JSON.parse(await input.text());
+      if (input.size > 2 * 1024 * 1024) {
+        throw new Error("JSON file exceeds the 2 MiB limit.");
+      }
 
-      if (!data?.source || !Array.isArray(data?.snapshots) || !data.snapshots[0]?.as_of)
-        throw new Error("Expected the documented option-chain schema.");
+      const data = parseDataset(await input.text());
       setScenario("imported");
       setDataset(data);
       setAt(data.snapshots[0].as_of);
-      void analyze(data, data.snapshots[0].as_of, controls);
+      await analyze(data, data.snapshots[0].as_of, controls);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid JSON import");
       setDataset(undefined);
@@ -200,7 +228,7 @@ export default function App() {
             <i />
             Paper only · execution absent
           </span>
-          <button className="import" onClick={() => file.current?.click()}>
+          <button type="button" className="import" onClick={() => file.current?.click()}>
             Import chain JSON
           </button>
           <input
@@ -212,7 +240,12 @@ export default function App() {
             onChange={(e) => {
               const f = e.target.files?.[0];
 
-              if (f) void importFile(f);
+              if (f) {
+                importFile(f).catch((failure) => {
+                  setError(failure instanceof Error ? failure.message : "Invalid JSON import");
+                });
+              }
+
               e.target.value = "";
             }}
           />
@@ -260,6 +293,7 @@ export default function App() {
             </span>
           </div>
           <button
+            type="button"
             className="secondary"
             disabled={!dataset}
             onClick={() => download(`paper-options-${scenario}.json`, dataset)}
@@ -392,6 +426,7 @@ export default function App() {
               <div className="segmented" aria-label="Option type">
                 {["all", "call", "put"].map((k) => (
                   <button
+                    type="button"
                     key={k}
                     onClick={() => setKind(k)}
                     aria-pressed={kind === k}
@@ -445,6 +480,7 @@ export default function App() {
                 ))}
             </ul>
             <button
+              type="button"
               className="secondary"
               onClick={() => download("paper-options-report.json", analysis)}
             >

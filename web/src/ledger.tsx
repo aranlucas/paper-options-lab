@@ -1,6 +1,10 @@
-import { Analysis, reason, usd } from "./types";
+import { keyedLedgerRows } from "./ledger-rows";
+import type { Analysis } from "./types";
+import { reason, usd } from "./types";
 
-export default function Ledger({ replay: r }: { replay: Analysis["replay"] }) {
+type LedgerProps = { replay: Analysis["replay"] };
+
+export default function Ledger({ replay: r }: LedgerProps) {
   return (
     <section className="ledger-section">
       <div className="section-title">
@@ -40,6 +44,8 @@ export default function Ledger({ replay: r }: { replay: Analysis["replay"] }) {
         className="table-scroll"
         role="region"
         aria-label="Local paper ledger table"
+        // Keyboard users need focus on this region to scroll the full table.
+        // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
       >
         <table className="ledger">
@@ -53,8 +59,8 @@ export default function Ledger({ replay: r }: { replay: Analysis["replay"] }) {
             </tr>
           </thead>
           <tbody>
-            {r.ledger.map((row, i) => (
-              <tr key={i}>
+            {keyedLedgerRows(r.ledger).map(({ key, row }) => (
+              <tr key={key}>
                 <td className="mono">
                   {row.at.replace("T", " ").replace("Z", "").replace("+00:00", "")}
                 </td>
@@ -65,9 +71,9 @@ export default function Ledger({ replay: r }: { replay: Analysis["replay"] }) {
                 <td>
                   {row.reasons ? (
                     <span className="negative">{row.reasons.map(reason).join("; ")}</span>
-                  ) : row.debit != null ? (
+                  ) : row.debit !== null && row.debit !== undefined ? (
                     <>−{usd(row.debit + (row.fees ?? 0))}</>
-                  ) : row.credit != null ? (
+                  ) : row.credit !== null && row.credit !== undefined ? (
                     <>
                       {usd(row.credit)} <span className="muted">({usd(row.pnl)} P&amp;L)</span>
                     </>

@@ -41,10 +41,18 @@
   },
   "overrides": [
     {
-      "files": ["tests/browser_qa.js"],
+      "files": [
+        "test/browser-qa.test.js"
+      ],
       "rules": {
         "eslint/no-unused-expressions": "off"
       }
     }
+  ],
+  "options": {
+    "typeAware": true
+  },
+  "extends": [
+    "./web/node_modules/@aranlucas/oxforge/configs/vitest.json"
   ]
 }
