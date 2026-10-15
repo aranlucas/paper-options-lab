@@ -1,11 +1,21 @@
 // Run with the installed Playwright CLI:
 // playwright-cli --session paper-options run-code --filename test/browser-qa.test.js
+/** @param {import("playwright-core").Page} page */
 async (page) => {
+  /** @type {string[]} */
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
 
+  // The CLI requires one function expression, so its assertion helper stays inside it.
+  /**
+   * @param {boolean} value
+   * @param {string} label
+   */
+  // oxlint-disable-next-line unicorn/consistent-function-scoping
   const check = (value, label) => {
-    if (!value) throw new Error(label);
+    if (!value) {
+      throw new Error(label);
+    }
   };
 
   await page.goto("http://127.0.0.1:8792");
