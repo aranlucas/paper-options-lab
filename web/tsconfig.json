@@ -12,9 +12,14 @@
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["../test/*"],
-      "vitest": ["./node_modules/vitest"]
+      "vitest": ["./node_modules/vitest"],
+      "playwright-core": ["./node_modules/playwright-core"]
     },
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": true,
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node"]
   },
-  "include": ["src", "../test/**/*.test.ts", "vitest.config.ts"]
+  "include": ["src", "../test/**/*.test.ts", "vitest.config.ts", "../test/**/*.test.js"]
 }
