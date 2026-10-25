@@ -6,7 +6,7 @@ A local options risk workbench: compare defined-risk call/put debit spreads, ins
 
 ## Run locally
 
-Python 3.11+ (tested 3.14), Node 22+ (tested 26), and an official QuantLib wheel for your platform. Dependencies are pinned; no C++ compilation is needed.
+Python 3.11+ (tested 3.14), Node 24+ (tested 26), and an official QuantLib wheel for your platform. Dependencies are pinned; no C++ compilation is needed.
 
 ```sh
 python3 -m venv .venv
@@ -16,7 +16,7 @@ npm --prefix web run build
 make dev
 ```
 
-Open <https://paper-options-lab.localhost>; `make dev` runs the server through [Portless](https://github.com/vercel-labs/portless) (a `web/` dev dependency, Node 24+), whose first run may ask for `sudo` to bind port 443 and trust a local certificate. The server binds loopback only, runs one worker, and computes on demand. Stop it with Ctrl+C. The build is ~75 KB gzipped JS. There are no background trading jobs. Draft pull requests run one bounded GitHub Actions verification job; it does not deploy anything.
+Open <https://paper-options-lab.localhost>; `make dev` runs the server through [Portless](https://github.com/vercel-labs/portless) (a `web/` dev dependency, Node 24+), whose first run may ask for `sudo` to bind port 443 and trust a local certificate. The server binds loopback only, runs one worker, and computes on demand. Stop it with Ctrl+C. The build is ~75 KB gzipped JS. There are no background trading jobs. Ready pull requests run one bounded GitHub Actions verification job; draft pull requests skip it. It does not deploy anything.
 
 ## CLI
 
