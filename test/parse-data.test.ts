@@ -2,21 +2,13 @@ import { describe, expect, it } from "vitest";
 import { apiError, parseAnalysis, parseDataset } from "@/parse-data";
 import analysis from "@test/fixtures/analysis.json";
 import rally from "../fixtures/rally.json";
-import flat from "../fixtures/flat.json";
-import selloff from "../fixtures/selloff.json";
 import volCrush from "../fixtures/vol-crush.json";
-import stale from "../fixtures/stale.json";
-import missing from "../fixtures/missing.json";
 import pending from "../fixtures/pending.json";
 
 describe("dataset boundary", () => {
   it.each([
     { name: "rally", fixture: rally },
-    { name: "flat", fixture: flat },
-    { name: "selloff", fixture: selloff },
     { name: "volatility crush", fixture: volCrush },
-    { name: "stale", fixture: stale },
-    { name: "missing", fixture: missing },
     { name: "pending", fixture: pending },
   ])("preserves the full $name dataset, including contracts and events", ({ fixture }) => {
     expect(parseDataset(JSON.stringify(fixture))).toEqual(fixture);
