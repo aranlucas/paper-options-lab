@@ -50,7 +50,7 @@ jobs:
           cp options_lab/schema.py /tmp/fixed-schema.py
           trap 'cp /tmp/fixed-schema.py options_lab/schema.py' EXIT
           git show 4fc831c6d9e9aac5fb2d2916d1ff691997f273d7:options_lab/schema.py > options_lab/schema.py
-          if python -m unittest test.test_engine.RiskTests.test_timestamp_utc_range_rejected_as_input_error > /tmp/baseline.log 2>&1; then
+          if python -m unittest discover -s test -p test_engine.py -k test_timestamp_utc_range_rejected_as_input_error > /tmp/baseline.log 2>&1; then
             cat /tmp/baseline.log
             echo "Baseline unexpectedly passed"
             exit 1

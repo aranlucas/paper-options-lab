@@ -68,3 +68,10 @@ Published npm versions verified: e2e 0.23.0 (tester-army repository),
 Installed with scripts suppressed. Read published quickstart, CI, GitHub Actions
 and installed guide. Dependencies chosen because user requested the maintained
 runner and its official Playwright web engine. No agent/model/login steps.
+
+CI setup evidence: run 42303961461 exposed shallow history in the baseline
+reproduction (fixed with checkout fetch-depth 0). Run 42304292421 exposed Python
+3.14 standard-library `test` package shadowing our namespace directory; the
+reproduction now uses native unittest discovery with `-s test -p test_engine.py
+-k test_timestamp_utc_range_rejected_as_input_error`, like the existing suite.
+Neither run established test success; subsequent CI remains required.
