@@ -18,13 +18,17 @@ it.skipIf(!process.env.BROWSER_TEST)(
       const page = await browser.newPage();
       await browserQA(page);
       let releaseFixture!: () => void;
+
       const fixtureHeld = new Promise<void>((resolve) => {
         releaseFixture = resolve;
       });
+
       let fixtureRequested!: () => void;
+
       const requested = new Promise<void>((resolve) => {
         fixtureRequested = resolve;
       });
+
       await page.route("**/api/fixture/flat", async (route) => {
         fixtureRequested();
         await fixtureHeld;
@@ -43,13 +47,17 @@ it.skipIf(!process.env.BROWSER_TEST)(
       await page.getByLabel("Dataset", { exact: true }).selectOption("rally");
       await page.getByText("6 eligible", { exact: true }).waitFor();
       let releaseInvalidImportFixture!: () => void;
+
       const invalidImportFixtureHeld = new Promise<void>((resolve) => {
         releaseInvalidImportFixture = resolve;
       });
+
       let invalidImportFixtureRequested!: () => void;
+
       const invalidImportRequested = new Promise<void>((resolve) => {
         invalidImportFixtureRequested = resolve;
       });
+
       await page.unroute("**/api/fixture/flat");
       await page.route("**/api/fixture/flat", async (route) => {
         invalidImportFixtureRequested();
@@ -58,6 +66,7 @@ it.skipIf(!process.env.BROWSER_TEST)(
       });
       await page.getByLabel("Dataset", { exact: true }).selectOption("flat");
       await invalidImportRequested;
+
       const invalidImportFixtureSettled = Promise.race([
         page.waitForEvent("requestfinished", (request) =>
           request.url().endsWith("/api/fixture/flat"),
@@ -66,6 +75,7 @@ it.skipIf(!process.env.BROWSER_TEST)(
           request.url().endsWith("/api/fixture/flat"),
         ),
       ]);
+
       await page.locator("input[type=file]").setInputFiles({
         name: "invalid.json",
         mimeType: "application/json",
