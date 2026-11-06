@@ -17,11 +17,11 @@ it.skipIf(!process.env.BROWSER_TEST)(
     try {
       const page = await browser.newPage();
       await browserQA(page);
-      let releaseFixture: () => void = () => {};
+      let releaseFixture!: () => void;
       const fixtureHeld = new Promise<void>((resolve) => {
         releaseFixture = resolve;
       });
-      let fixtureRequested: () => void = () => {};
+      let fixtureRequested!: () => void;
       const requested = new Promise<void>((resolve) => {
         fixtureRequested = resolve;
       });
@@ -42,11 +42,11 @@ it.skipIf(!process.env.BROWSER_TEST)(
       await page.getByLabel("Max loss / position ($)", { exact: true }).fill("500");
       await page.getByLabel("Dataset", { exact: true }).selectOption("rally");
       await page.getByText("6 eligible", { exact: true }).waitFor();
-      let releaseInvalidImportFixture: () => void = () => {};
+      let releaseInvalidImportFixture!: () => void;
       const invalidImportFixtureHeld = new Promise<void>((resolve) => {
         releaseInvalidImportFixture = resolve;
       });
-      let invalidImportFixtureRequested: () => void = () => {};
+      let invalidImportFixtureRequested!: () => void;
       const invalidImportRequested = new Promise<void>((resolve) => {
         invalidImportFixtureRequested = resolve;
       });
@@ -75,7 +75,10 @@ it.skipIf(!process.env.BROWSER_TEST)(
       releaseInvalidImportFixture();
       await invalidImportFixtureSettled;
       await page.evaluate(
-        () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+        () =>
+          new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          }),
       );
       expect(await compare.isEnabled()).toBe(false);
       await page.getByLabel("Dataset", { exact: true }).selectOption("rally");
