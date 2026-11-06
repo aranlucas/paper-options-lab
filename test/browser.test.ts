@@ -58,6 +58,14 @@ it.skipIf(!process.env.BROWSER_TEST)(
       });
       await page.getByLabel("Dataset", { exact: true }).selectOption("flat");
       await invalidImportRequested;
+      const invalidImportFixtureSettled = Promise.race([
+        page.waitForEvent("requestfinished", (request) =>
+          request.url().endsWith("/api/fixture/flat"),
+        ),
+        page.waitForEvent("requestfailed", (request) =>
+          request.url().endsWith("/api/fixture/flat"),
+        ),
+      ]);
       await page.locator("input[type=file]").setInputFiles({
         name: "invalid.json",
         mimeType: "application/json",
@@ -65,7 +73,11 @@ it.skipIf(!process.env.BROWSER_TEST)(
       });
       await expect.poll(() => page.getByRole("alert").innerText()).toContain("JSON");
       releaseInvalidImportFixture();
-      await expect.poll(() => compare.isEnabled()).toBe(false);
+      await invalidImportFixtureSettled;
+      await page.evaluate(
+        () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
+      );
+      expect(await compare.isEnabled()).toBe(false);
       await page.getByLabel("Dataset", { exact: true }).selectOption("rally");
       await page.getByText("6 eligible", { exact: true }).waitFor();
       const rally = await readFile(new URL("../fixtures/rally.json", import.meta.url));
