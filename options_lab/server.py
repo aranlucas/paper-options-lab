@@ -6,7 +6,7 @@ from pathlib import Path
 from urllib.parse import urlparse, urlsplit
 
 from .engine import compare, policy_from_dict, replay
-from .fixtures import SCENARIOS, START, fixture, iso
+from .fixtures import SCENARIOS, fixture
 from .schema import InputError, keys, load_json, timestamp, validate_dataset
 
 ROOT = Path(__file__).resolve().parent.parent

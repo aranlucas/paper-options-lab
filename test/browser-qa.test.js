@@ -1,12 +1,11 @@
-// Run with the installed Playwright CLI:
-// playwright-cli --session paper-options run-code --filename test/browser-qa.test.js
+import { fileURLToPath } from "node:url";
+
 /** @param {import("playwright-core").Page} page */
-async (page) => {
+export default async function browserQA(page) {
   /** @type {string[]} */
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
 
-  // The CLI requires one function expression, so its assertion helper stays inside it.
   /**
    * @param {boolean} value
    * @param {string} label
@@ -93,7 +92,9 @@ async (page) => {
       .then((t) => t.includes("stale quote")),
     "Stale data fails closed",
   );
-  await page.locator("input[type=file]").setInputFiles("fixtures/rally.json");
+  await page
+    .locator("input[type=file]")
+    .setInputFiles(fileURLToPath(new URL("../fixtures/rally.json", import.meta.url)));
   await page.getByText("6 eligible", { exact: true }).waitFor({ state: "visible" });
   check(
     (await page.getByLabel("Dataset", { exact: true }).inputValue()) === "imported",
@@ -146,7 +147,8 @@ async (page) => {
   await page.getByRole("button", { name: "Compare & replay", exact: true }).click();
   await page.getByRole("alert").waitFor({ state: "visible" });
   check(
-    (await page.getByRole("alert").innerText()) === "Analysis failed",
+    (await page.getByRole("alert").innerText()) ===
+      "Input rejected: Analysis failed. Correct the input or load another scenario.",
     "Nontext API errors use a safe fallback",
   );
   check(
@@ -185,16 +187,26 @@ async (page) => {
     "Reloaded scenario initializes settlement from spot",
   );
 
-  await page.screenshot({ path: "output/playwright/desktop.png", fullPage: false });
-  await page.screenshot({ path: "output/playwright/desktop-full.png", fullPage: true });
+  await page.screenshot({
+    path: fileURLToPath(new URL("../output/playwright/desktop.png", import.meta.url)),
+    fullPage: false,
+  });
+  await page.screenshot({
+    path: fileURLToPath(new URL("../output/playwright/desktop-full.png", import.meta.url)),
+    fullPage: true,
+  });
   await page.setViewportSize({ width: 390, height: 844 });
   check(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     "Mobile page overflow",
   );
-  await page.screenshot({ path: "output/playwright/mobile.png" });
+  await page.screenshot({
+    path: fileURLToPath(new URL("../output/playwright/mobile.png", import.meta.url)),
+  });
   await page.locator(".inspector").scrollIntoViewIfNeeded();
-  await page.screenshot({ path: "output/playwright/mobile-payoff.png" });
+  await page.screenshot({
+    path: fileURLToPath(new URL("../output/playwright/mobile-payoff.png", import.meta.url)),
+  });
   check(
     await page.getByRole("slider", { name: "Hypothetical settlement value" }).isVisible(),
     "Mobile payoff",
@@ -204,4 +216,4 @@ async (page) => {
   check(errors.length === 0, `Browser errors: ${errors.join("; ")}`);
 
   return { passed: true, checks: 24, desktop: "1440×1050", mobile: "390×844", pageErrors: errors };
-};
+}

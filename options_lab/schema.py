@@ -20,6 +20,10 @@ def timestamp(value):
     return result.astimezone(timezone.utc)
 
 
+def iso(at):
+    return at.isoformat().replace("+00:00", "Z")
+
+
 def number(value, path, low=0, high=1e8, optional=False, integer=False):
     if value is None and optional:
         return

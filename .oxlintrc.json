@@ -12,14 +12,6 @@
     ".roo/**",
     ".windsurf/**"
   ],
-  "overrides": [
-    {
-      "files": ["test/browser-qa.test.js"],
-      "rules": {
-        "eslint/no-unused-expressions": "off"
-      }
-    }
-  ],
   "options": {
     "typeAware": true
   },

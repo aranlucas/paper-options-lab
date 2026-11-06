@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { apiError, parseAnalysis, parseDataset } from "@/parse-data";
+import { apiError, parseAnalysis, parseDataset, parseScenarios } from "@/parse-data";
 import analysis from "@test/fixtures/analysis.json";
 import rally from "../fixtures/rally.json";
 import volCrush from "../fixtures/vol-crush.json";
@@ -132,4 +132,20 @@ describe("original JSON property preservation", () => {
       }
     },
   );
+});
+
+describe("scenario catalog", () => {
+  it("accepts new scenario IDs and labels without a dashboard release", () => {
+    expect(
+      parseScenarios(
+        '{"scenarios":[{"id":"new-scenario","label":"New scenario"}],"paper_only":true}',
+      ),
+    ).toEqual([{ id: "new-scenario", label: "New scenario" }]);
+  });
+
+  it("rejects labels that cannot render as text", () => {
+    expect(() => parseScenarios('{"scenarios":[{"id":"new-scenario","label":{}}]}')).toThrow(
+      "label",
+    );
+  });
 });
