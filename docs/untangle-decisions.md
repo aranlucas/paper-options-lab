@@ -84,3 +84,11 @@ native installer and the existing Vitest runner. Final review pending.
 Final independent reviewer confirmed the path corrections and found no remaining
 worthwhile issues. Implementation and static review are complete; CI is the
 remaining behavioral validation and merge gate.
+
+### CI follow-up — run 42273998239
+
+Python behavior/API tests, boundary tests, lint, format, typecheck and build passed.
+The newly enabled browser suite exposed a pre-existing invalid fixture selection:
+its slider reset check requested Call 100/110 while rejected spreads were hidden.
+Use the eligible Call 95/100 instead, keeping the exact reset expectation. No
+product behavior or risk filter changed, no test removed, no local reproduction.

@@ -118,7 +118,9 @@ export default async function browserQA(page) {
   const initialSettlement = await slider.inputValue();
   await slider.focus();
   await page.keyboard.press("ArrowRight");
-  await page.locator(".row-select").filter({ hasText: "Call 100 / 110" }).click();
+  await page
+    .getByRole("button", { name: "Call 95 / 100 1 spread · ×100 · Nov 1", exact: true })
+    .click();
   check(
     (await slider.inputValue()) === initialSettlement,
     "New candidate resets the payoff slider",
