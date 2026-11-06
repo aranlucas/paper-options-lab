@@ -25,6 +25,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -87,6 +88,26 @@ jobs:
 
       - name: Install browser
         run: npm --prefix web exec -- playwright-core install --with-deps chromium
+
+      - name: Prove fixture race regression rejects the defective baseline
+        run: |
+          cp web/src/app.tsx /tmp/fixed-app.tsx
+          trap 'cp /tmp/fixed-app.tsx web/src/app.tsx' EXIT
+          git show 4fc831c6d9e9aac5fb2d2916d1ff691997f273d7:web/src/app.tsx > web/src/app.tsx
+          npm --prefix web run build
+          python -m options_lab serve --port 8792 &
+          dashboard_pid=$!
+          trap 'kill "$dashboard_pid"; cp /tmp/fixed-app.tsx web/src/app.tsx' EXIT
+          if BROWSER_TEST=1 npm --prefix web test > /tmp/baseline-browser.log 2>&1; then
+            cat /tmp/baseline-browser.log
+            echo "Baseline unexpectedly passed"
+            exit 1
+          fi
+          cat /tmp/baseline-browser.log
+          grep 'expected false to be true' /tmp/baseline-browser.log
+
+      - name: Rebuild fixed dashboard
+        run: npm --prefix web run build
 
       - name: Test dashboard interactions
         run: |

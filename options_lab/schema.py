@@ -16,6 +16,8 @@ def timestamp(value):
         if result.tzinfo is None:
             raise InputError("naive timestamps are forbidden")
         return result.astimezone(timezone.utc)
+    except InputError:
+        raise
     except (ValueError, OverflowError) as exc:
         raise InputError("invalid or out-of-range ISO-8601 timestamp") from exc
 
