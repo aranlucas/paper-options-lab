@@ -5,7 +5,7 @@ import re
 from zoneinfo import ZoneInfo
 
 from .engine import Policy, quote_reasons
-from .schema import InputError, keys, number, text, timestamp, validate_dataset
+from .schema import InputError, iso, keys, number, text, timestamp, validate_dataset
 
 EASTERN = ZoneInfo("America/New_York")
 IDENTITY = ("optionSymbol", "underlying", "expiration", "side", "strike", "updated", "underlyingPrice")
@@ -13,10 +13,6 @@ NUMERIC = ("bid", "ask", "mid", "last", "volume", "openInterest", "bidSize", "as
 OPTIONAL = (*NUMERIC, "inTheMoney")
 GREEKS = ("delta", "gamma", "theta", "vega")
 SYMBOL = re.compile(r"([A-Z][A-Z0-9]{0,5}) *(\d{6})([CP])(\d{8})\Z")
-
-
-def iso(value):
-    return value.isoformat().replace("+00:00", "Z")
 
 
 def epoch(value, field):
@@ -148,7 +144,6 @@ def convert_marketdata(packet, manifest, audit_at=None):
         rows.append(row)
         audits.append({"id": canonical, "provider_iv": get("iv"), "iv_origin": "missing" if get("iv") is None else "supplied; not model-derived", "provider_greeks": {field: get(field) for field in GREEKS}, "provider_expiration": iso(provider_expiry), "contract_reference": spec["reference"], "warnings": ["PROVIDER_EXPIRATION_TIME_DIFFERS"] if provider_expiry != expiry else []})
     snapshot = {"id": "marketdata-offline-1", "underlying": manifest["underlying"], "as_of": iso(as_of), "available_at": iso(retrieved), "spot": spot, "spot_at": iso(as_of), "rate": manifest["rate"], "dividend_yield": manifest["dividend_yield"], "contracts": rows}
-    # Never create a plan, settlement value or execution from a quote packet.
     source = {**manifest["source"], "observation_only": True}
     dataset = validate_dataset({"schema_version": 1, "source": source, "snapshots": [snapshot], "settlements": [], "events": []})
     at = timestamp(audit_at) if audit_at is not None else retrieved

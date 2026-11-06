@@ -71,3 +71,13 @@ jobs:
 
           - name: Build local dashboard
             run: npm --prefix web run build
+
+      - name: Install browser
+        run: npm --prefix web exec -- playwright-core install --with-deps chromium
+
+      - name: Test dashboard interactions
+        run: |
+          python -m options_lab serve --port 8792 &
+          dashboard_pid=$!
+          trap 'kill "$dashboard_pid"' EXIT
+          BROWSER_TEST=1 npm --prefix web test

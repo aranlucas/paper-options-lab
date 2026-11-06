@@ -49,6 +49,21 @@ def policy_from_dict(values=None):
     return Policy(**values)
 
 
+def execution_rejection(source):
+    if source.get("observation_only") is True:
+        return "OBSERVATION_ONLY_DATA"
+    if source["feed"] in ("indicative", "unknown"):
+        return "NON_EXECUTABLE_OR_UNKNOWN_FEED"
+    return None
+
+
+def spread_greeks(long, short, snapshot, at, quantity):
+    years = (timestamp(long["expires_at"]) - at).total_seconds() / (365 * 86400)
+    models = [analytical(q["kind"], snapshot["spot"], q["strike"], years, q["iv"], snapshot["rate"], snapshot["dividend_yield"]) for q in (long, short)]
+    scale = long["multiplier"] * quantity
+    return {key: (models[0][key] - models[1][key]) * scale for key in ("delta", "gamma", "theta", "vega")}
+
+
 def snapshot_reasons(snapshot, at):
     result = []
     as_of = timestamp(snapshot["as_of"])
@@ -141,8 +156,7 @@ def evaluate_pair(long, short, snapshot, at, policy, quantity=1):
     reserve_fees = money(2 * quantity * max(policy.fee_per_contract, policy.settlement_fee_per_contract))
     max_loss = money(debit + entry_fees + reserve_fees)
     years = (timestamp(long["expires_at"]) - at).total_seconds() / (365 * 86400)
-    models = [analytical(q["kind"], snapshot["spot"], q["strike"], years, q["iv"], snapshot["rate"], snapshot["dividend_yield"]) for q in (long, short)]
-    greeks = {key: round((models[0][key] - models[1][key]) * scale, 6) for key in ("delta", "gamma", "theta", "vega")}
+    greeks = {key: round(value, 6) for key, value in spread_greeks(long, short, snapshot, at, quantity).items()}
     if max_loss > policy.max_loss_per_position:
         reasons.append("POSITION_RISK_LIMIT")
     if abs(greeks["delta"]) > policy.max_abs_delta:
@@ -182,11 +196,9 @@ def compare(data, at, policy=Policy(), quantity=1, snapshot_id=None):
         raise InputError("quantity must be integer in [1, 100]")
     snapshot = next((snap for snap in data["snapshots"] if snap["id"] == snapshot_id), None) if snapshot_id else latest_snapshot(data, at)
     result = {"paper_only": True, "source": data["source"], "as_of": at.isoformat(), "policy": asdict(policy), "candidates": [], "snapshot_id": snapshot["id"] if snapshot else None}
-    if data["source"].get("observation_only") is True:
-        result["error"] = "OBSERVATION_ONLY_DATA"
-        return result
-    if data["source"]["feed"] in ("indicative", "unknown"):
-        result["error"] = "NON_EXECUTABLE_OR_UNKNOWN_FEED"
+    source_error = execution_rejection(data["source"])
+    if source_error:
+        result["error"] = source_error
         return result
     if snapshot is None:
         result["error"] = "NO_AVAILABLE_CHAIN"
@@ -246,10 +258,9 @@ def replay(data, policy=Policy(), through=None):
         if event["action"] == "open":
             reasons = []
             candidate = None
-            if data["source"].get("observation_only") is True:
-                reasons.append("OBSERVATION_ONLY_DATA")
-            elif data["source"]["feed"] in ("indicative", "unknown"):
-                reasons.append("NON_EXECUTABLE_OR_UNKNOWN_FEED")
+            source_error = execution_rejection(data["source"])
+            if source_error:
+                reasons.append(source_error)
             elif snapshot is None:
                 reasons.append("NO_AVAILABLE_CHAIN")
             else:
@@ -272,10 +283,7 @@ def replay(data, policy=Policy(), through=None):
                     if not ql or not qs or snapshot_reasons(snapshot, at) or quote_reasons(ql, snapshot, at, policy, p["quantity"], False) or quote_reasons(qs, snapshot, at, policy, p["quantity"], False):
                         reasons.append("PORTFOLIO_MARK_UNAVAILABLE")
                         break
-                    years = (timestamp(p["expires_at"]) - at).total_seconds() / (365 * 86400)
-                    dl = analytical(p["kind"], snapshot["spot"], ql["strike"], years, ql["iv"], snapshot["rate"], snapshot["dividend_yield"])["delta"]
-                    ds = analytical(p["kind"], snapshot["spot"], qs["strike"], years, qs["iv"], snapshot["rate"], snapshot["dividend_yield"])["delta"]
-                    gross_delta += abs((dl - ds) * p["multiplier"] * p["quantity"])
+                    gross_delta += abs(spread_greeks(ql, qs, snapshot, at, p["quantity"])["delta"])
                 if gross_delta > policy.max_abs_delta:
                     reasons.append("PORTFOLIO_DELTA_LIMIT")
                 future_fees = sum(p["reserved_exit_fees"] for p in positions.values())

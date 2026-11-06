@@ -3,13 +3,10 @@ from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 
 from .pricing import analytical
+from .schema import iso
 
 START = datetime(2026, 10, 2, 14, 0, tzinfo=timezone.utc)
 EXPIRY = START + timedelta(days=30, hours=6)
-
-
-def iso(at):
-    return at.isoformat().replace("+00:00", "Z")
 
 
 def chain(at, spot, iv, name):

@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 
 from .engine import compare, policy_from_dict, replay
-from .fixtures import SCENARIOS, START, fixture, iso
-from .schema import InputError, load_json, validate_dataset
+from .fixtures import SCENARIOS, START, fixture
+from .schema import InputError, iso, load_json, validate_dataset
 
 
 def read_input(path):

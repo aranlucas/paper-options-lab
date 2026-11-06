@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { Analysis, Dataset } from "./types";
 
 const sourceSchema = z.looseObject({
   kind: z.enum(["synthetic", "imported"]),
@@ -89,6 +88,20 @@ const analysisSchema = z.looseObject({
   }),
 });
 
+const scenarioSchema = z.object({ id: z.string(), label: z.string() });
+
+export type Scenario = z.infer<typeof scenarioSchema>;
+
+export type Source = z.infer<typeof sourceSchema>;
+
+export type Dataset = z.infer<typeof datasetSchema>;
+
+export type Candidate = z.infer<typeof candidateSchema>;
+
+export type LedgerRow = z.infer<typeof ledgerRowSchema>;
+
+export type Analysis = z.infer<typeof analysisSchema>;
+
 const errorSchema = z.object({ error: z.string() });
 
 export function parseDataset(text: string): Dataset {
@@ -121,4 +134,8 @@ export function apiError(text: string, fallback: string): string {
   } catch {
     return fallback;
   }
+}
+
+export function parseScenarios(text: string): Scenario[] {
+  return z.object({ scenarios: z.array(scenarioSchema) }).parse(JSON.parse(text)).scenarios;
 }

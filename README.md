@@ -50,12 +50,14 @@ npm --prefix web run build
 git diff --check
 ```
 
-For browser regression, start the plain loopback server above after building the dashboard. With `playwright-cli` installed separately, run from the repository root:
+For browser regression, build the dashboard and start the plain loopback server
+above, then run the existing Vitest integration check:
 
 ```sh
-playwright-cli --session paper-options open http://127.0.0.1:8792
-playwright-cli --session paper-options run-code --filename test/browser-qa.test.js
-playwright-cli --session paper-options close
+npm --prefix web exec -- playwright-core install chromium
+BROWSER_TEST=1 npm --prefix web test
 ```
 
-The browser check exercises imports, error recovery, risk controls, selection, export and mobile layout; it overwrites captures in `output/playwright/`. The lint exception for its single function expression is documented in [the check](test/browser-qa.test.js) and scoped in [.oxlintrc.json](.oxlintrc.json).
+CI installs Chromium and runs this check against the built dashboard. It exercises
+imports, error recovery, risk controls, selection, export, mobile layout and stale
+import isolation; it overwrites captures in `output/playwright/`.

@@ -1,7 +1,8 @@
 """Explicitly fictional MarketData-shaped examples, generated without data access."""
 from datetime import datetime, timedelta, timezone
 
-from .marketdata import EASTERN, iso
+from .marketdata import EASTERN
+from .schema import iso
 from .pricing import analytical
 
 

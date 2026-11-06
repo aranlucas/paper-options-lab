@@ -3,19 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Inspector from "./inspector";
 import SpreadTable from "./spread-table";
 import Ledger from "./ledger";
-import type { Analysis, Dataset } from "./types";
+import type { Analysis, Dataset, Scenario } from "./types";
 import { num, reason } from "./types";
-import { apiError, parseAnalysis, parseDataset } from "./parse-data";
-
-const labels = {
-  rally: "Rally +8%",
-  flat: "Flat at expiration",
-  selloff: "Gap down −12%",
-  "vol-crush": "Volatility crush + early close",
-  stale: "Stale chain",
-  missing: "Missing bids",
-  pending: "Missing settlement value",
-};
+import { apiError, parseAnalysis, parseDataset, parseScenarios } from "./parse-data";
 
 type Controls = {
   quantity: number;
@@ -48,6 +38,7 @@ function download(name: string, data: Dataset | Analysis | undefined) {
 }
 
 export default function App() {
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [scenario, setScenario] = useState("rally");
   const [dataset, setDataset] = useState<Dataset>();
   const [at, setAt] = useState("");
@@ -61,6 +52,32 @@ export default function App() {
   const file = useRef<HTMLInputElement>(null);
   const generation = useRef(0);
   const request = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const abort = new AbortController();
+
+    async function loadScenarios() {
+      const response = await fetch("/api/scenarios", { signal: abort.signal });
+
+      if (!response.ok) {
+        throw new Error("Unable to load scenarios");
+      }
+
+      const catalog = parseScenarios(await response.text());
+
+      if (!abort.signal.aborted) {
+        setScenarios(catalog);
+      }
+    }
+
+    loadScenarios().catch((failure) => {
+      if (!abort.signal.aborted) {
+        setError(failure instanceof Error ? failure.message : "Unable to load scenarios");
+      }
+    });
+
+    return () => abort.abort();
+  }, []);
 
   async function analyze(data: Dataset, time: string, values: Controls) {
     request.current?.abort();
@@ -119,7 +136,7 @@ export default function App() {
     setAnalysis(undefined);
     setDataset(undefined);
     request.current?.abort();
-    generation.current++;
+    const token = ++generation.current;
 
     async function loadScenario() {
       const response = await fetch(`/api/fixture/${scenario}`, { signal: abort.signal });
@@ -130,7 +147,7 @@ export default function App() {
 
       const data = parseDataset(await response.text());
 
-      if (abort.signal.aborted) {
+      if (abort.signal.aborted || token !== generation.current) {
         return;
       }
 
@@ -140,7 +157,7 @@ export default function App() {
     }
 
     loadScenario().catch((failure) => {
-      if (!abort.signal.aborted) {
+      if (!abort.signal.aborted && token === generation.current) {
         setError(failure instanceof Error ? failure.message : "Unable to load scenario");
         setLoading(false);
       }
@@ -185,7 +202,7 @@ export default function App() {
 
   async function importFile(input: File) {
     request.current?.abort();
-    generation.current++;
+    const token = ++generation.current;
     setAnalysis(undefined);
     setLoading(false);
 
@@ -194,12 +211,22 @@ export default function App() {
         throw new Error("JSON file exceeds the 2 MiB limit.");
       }
 
-      const data = parseDataset(await input.text());
+      const text = await input.text();
+
+      if (token !== generation.current) {
+        return;
+      }
+
+      const data = parseDataset(text);
       setScenario("imported");
       setDataset(data);
       setAt(data.snapshots[0].as_of);
       await analyze(data, data.snapshots[0].as_of, controls);
     } catch (e) {
+      if (token !== generation.current) {
+        return;
+      }
+
       setError(e instanceof Error ? e.message : "Invalid JSON import");
       setDataset(undefined);
     }
@@ -271,7 +298,7 @@ export default function App() {
               value={scenario}
               onChange={(e) => setScenario(e.target.value)}
             >
-              {Object.entries(labels).map(([id, label]) => (
+              {scenarios.map(({ id, label }) => (
                 <option key={id} value={id}>
                   {label}
                 </option>
