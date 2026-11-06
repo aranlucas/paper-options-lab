@@ -21,5 +21,12 @@
     "typeRoots": ["./node_modules/@types"],
     "types": ["node"]
   },
-  "include": ["src", "../test/**/*.test.ts", "vitest.config.ts", "../test/**/*.test.js"]
+  "include": [
+    "src",
+    "../test/**/*.test.ts",
+    "vitest.config.ts",
+    "e2e.config.ts",
+    "tests/**/*.e2e.ts",
+    "../test/**/*.test.js"
+  ]
 }

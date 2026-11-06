@@ -1,4 +1,7 @@
 import json
+import subprocess
+import sys
+import tempfile
 import unittest
 from copy import deepcopy
 from datetime import timedelta
@@ -19,6 +22,25 @@ class RiskTests(unittest.TestCase):
 
     def pair(self, policy=None, qty=1):
         return evaluate_pair(self.long, self.short, self.snapshot, START, policy or Policy(), qty)
+
+    def test_timestamp_utc_range_rejected_as_input_error(self):
+        for value in ("0001-01-01T00:00:00+01:00", "9999-12-31T23:59:59-01:00"):
+            with self.subTest(value=value), self.assertRaises(InputError):
+                timestamp(value)
+        self.assertEqual(timestamp("0001-01-01T01:00:00+01:00").isoformat(), "0001-01-01T00:00:00+00:00")
+        self.assertEqual(timestamp("9999-12-31T22:59:59-01:00").isoformat(), "9999-12-31T23:59:59+00:00")
+
+    def test_cli_rejects_timestamp_outside_utc_range(self):
+        data = deepcopy(self.data)
+        data["snapshots"][0]["as_of"] = "0001-01-01T00:00:00+01:00"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "input.json"
+            path.write_text(json.dumps(data))
+            result = subprocess.run([sys.executable, "-m", "options_lab", "validate", "--input", str(path)], capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Input rejected:", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(result.stdout, "")
 
     def test_known_black_scholes_value_and_greek_units(self):
         call = analytical("call", 100, 100, 1, .2, .05, 0)

@@ -51,6 +51,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const file = useRef<HTMLInputElement>(null);
   const generation = useRef(0);
+  const fixtureRequest = useRef<AbortController | null>(null);
   const request = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -131,6 +132,7 @@ export default function App() {
     }
 
     const abort = new AbortController();
+    fixtureRequest.current = abort;
     setLoading(true);
     setError("");
     setAnalysis(undefined);
@@ -147,17 +149,26 @@ export default function App() {
 
       const data = parseDataset(await response.text());
 
-      if (abort.signal.aborted || token !== generation.current) {
+      if (abort.signal.aborted) {
         return;
       }
 
       setDataset(data);
+
+      if (token !== generation.current) {
+        // Control edits invalidate analysis, not the selected fixture download.
+        setAt((previous) => (previous === at ? data.snapshots[0].as_of : previous));
+        setLoading(false);
+
+        return;
+      }
+
       setAt(data.snapshots[0].as_of);
       await analyze(data, data.snapshots[0].as_of, controls);
     }
 
     loadScenario().catch((failure) => {
-      if (!abort.signal.aborted && token === generation.current) {
+      if (!abort.signal.aborted) {
         setError(failure instanceof Error ? failure.message : "Unable to load scenario");
         setLoading(false);
       }
@@ -201,6 +212,7 @@ export default function App() {
   };
 
   async function importFile(input: File) {
+    fixtureRequest.current?.abort();
     request.current?.abort();
     const token = ++generation.current;
     setAnalysis(undefined);

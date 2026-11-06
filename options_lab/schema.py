@@ -13,11 +13,13 @@ def timestamp(value):
         raise InputError("timestamp must be an ISO-8601 string with timezone")
     try:
         result = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as exc:
-        raise InputError("invalid ISO-8601 timestamp") from exc
-    if result.tzinfo is None:
-        raise InputError("naive timestamps are forbidden")
-    return result.astimezone(timezone.utc)
+        if result.tzinfo is None:
+            raise InputError("naive timestamps are forbidden")
+        return result.astimezone(timezone.utc)
+    except InputError:
+        raise
+    except (ValueError, OverflowError) as exc:
+        raise InputError("invalid or out-of-range ISO-8601 timestamp") from exc
 
 
 def iso(at):
