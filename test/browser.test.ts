@@ -17,6 +17,31 @@ it.skipIf(!process.env.BROWSER_TEST)(
     try {
       const page = await browser.newPage();
       await browserQA(page);
+      let releaseFixture: () => void = () => {};
+      const fixtureHeld = new Promise<void>((resolve) => {
+        releaseFixture = resolve;
+      });
+      let fixtureRequested: () => void = () => {};
+      const requested = new Promise<void>((resolve) => {
+        fixtureRequested = resolve;
+      });
+      await page.route("**/api/fixture/flat", async (route) => {
+        fixtureRequested();
+        await fixtureHeld;
+        await route.continue();
+      });
+      await page.getByLabel("Dataset", { exact: true }).selectOption("flat");
+      await requested;
+      await page.getByLabel("Max loss / position ($)", { exact: true }).fill("50");
+      releaseFixture();
+      const compare = page.getByRole("button", { name: "Compare & replay", exact: true });
+      await expect.poll(() => compare.isEnabled()).toBe(true);
+      await compare.click();
+      await page.getByText("0 eligible", { exact: true }).waitFor();
+      expect(await page.locator(".ledger tbody").innerText()).toContain("position risk limit");
+      await page.getByLabel("Max loss / position ($)", { exact: true }).fill("500");
+      await page.getByLabel("Dataset", { exact: true }).selectOption("rally");
+      await page.getByText("6 eligible", { exact: true }).waitFor();
       const rally = await readFile(new URL("../fixtures/rally.json", import.meta.url));
       await page.evaluate((content) => {
         File.prototype.text = function () {

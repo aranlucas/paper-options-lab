@@ -9,3 +9,5 @@ output/playwright/*.log
 output/playwright/*.yml
 artifacts/*.json
 artifacts/*.log
+
+web/.e2e/

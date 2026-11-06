@@ -147,11 +147,17 @@ export default function App() {
 
       const data = parseDataset(await response.text());
 
-      if (abort.signal.aborted || token !== generation.current) {
+      if (abort.signal.aborted) {
         return;
       }
 
       setDataset(data);
+      if (token !== generation.current) {
+        // Control edits invalidate analysis, not the selected fixture download.
+        setAt((previous) => (previous === at ? data.snapshots[0].as_of : previous));
+        setLoading(false);
+        return;
+      }
       setAt(data.snapshots[0].as_of);
       await analyze(data, data.snapshots[0].as_of, controls);
     }
